@@ -146,7 +146,10 @@ sub http_request {
     $uri = abs_url( $self->url, $uri );
 
     if ( defined $content && ref($content) ) {
-        $content = JSON->new->convert_blessed->encode($content);
+        $content = eval { JSON->new->convert_blessed->encode($content) };
+        if ($@) {
+            confess "$@:\n$content";
+        }
     }
 
     my $request = $self->build_http_request( $method, $uri, undef, $content );
@@ -158,7 +161,7 @@ sub http_request {
     if ($response_text) {
         $content_data = eval { JSON->new->convert_blessed->decode($response_text) };
         if ($@) {
-            die($response);
+            confess "$@:\n$response_text";
         }
     }
     else {
@@ -195,7 +198,10 @@ sub _build_schemas {
         $schema_json = $self->http_request_schemas_json;
     }
 
-    my $struct = JSON->new->convert_blessed->decode($schema_json);
+    my $struct = eval { JSON->new->convert_blessed->decode($schema_json); };
+    if ($@) {
+        confess "$@:\n$schema_json";
+    }
     foreach my $schema_struct ( @{ $struct->{data} } ) {
         my $schema = WWW::GoDaddy::REST::Resource->new_subclassed(
             { client => $self, fields => $schema_struct } );
