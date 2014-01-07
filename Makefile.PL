@@ -17,8 +17,6 @@ WriteMakefile
                            'List::Util' => 0,
                            'Moose' => 0,
                            'Pod::Usage' => 0,
-                           'Readonly' => 0,
-                           'Sub::Exporter' => 0,
                            'Term::Shell' => 0,
                            'Test::Exception' => 0,
                            'Test::MockObject' => 0,

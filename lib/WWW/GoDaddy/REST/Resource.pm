@@ -4,9 +4,8 @@ use Carp;
 use Moose;
 use WWW::GoDaddy::REST::Schema;
 use WWW::GoDaddy::REST::Util qw( abs_url );
-use Readonly;
 
-Readonly my $DEFAULT_IMPL_CLASS => 'WWW::GoDaddy::REST::Resource';
+use constant DEFAULT_IMPL_CLASS => 'WWW::GoDaddy::REST::Resource';
 
 has 'client' => (
     is       => 'rw',
@@ -162,7 +161,7 @@ sub new_subclassed {
     my $type_short = $params->{fields}->{type} || '';
     my $type_long = $type_short ? $params->{client}->schemas_url($type_short) : '';
 
-    my $impl = $class->find_implementation( ( $type_long, $type_short ) ) || $DEFAULT_IMPL_CLASS;
+    my $impl = $class->find_implementation( ( $type_long, $type_short ) ) || DEFAULT_IMPL_CLASS;
     eval "require $impl;";
 
     return $impl->new($params);

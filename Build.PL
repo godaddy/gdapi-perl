@@ -23,8 +23,6 @@ Module::Build->new(
         'List::Util'        => 0,
         'Moose'             => 0,
         'Pod::Usage'        => 0,
-        'Readonly'          => 0,
-        'Sub::Exporter'     => 0,
         'Term::Shell'       => 0,
         'Text::FormatTable' => 0,
         'Text::Wrap'        => 0,
