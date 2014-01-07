@@ -46,6 +46,8 @@ sub outgoing_edges {
     my %dupe_edge_detect;
 
     foreach my $s (@plot_schemas) {
+
+        # first do the resource fields
         foreach my $field ( $s->resource_field_names ) {
             my ( $container, $type )
                 = $s->resource_field_type( $field,
@@ -67,9 +69,52 @@ sub outgoing_edges {
                     'to'        => $to,
                     'arrowhead' => $arrowhead,
                     'arrowtail' => $arrowtail,
-                    'via'       => $field
+                    'via'       => 'field'
                 };
 
+                $dupe_edge_detect{$edge_key} ||= [];
+                push @{ $dupe_edge_detect{$edge_key} }, $edge;
+            }
+        }
+        my %resource_actions = %{ $s->f('resourceActions') };
+        while ( my ( $action, $action_data ) = each(%resource_actions) ) {
+            my $input_schema = $self->client->schema( $action_data->{input} || '' );
+            if ($input_schema) {
+                my $from      = $input_schema->id;
+                my $to        = $s->id;
+                my $arrowhead = 'dot';
+                my $arrowtail = 'none';
+
+                my $edge_key = join '', sort ( $from, $to );
+                my $edge = {
+                    'from'      => $from,
+                    'to'        => $to,
+                    'arrowhead' => $arrowhead,
+                    'arrowtail' => $arrowtail,
+                    'via'       => 'action',
+                    'style'     => 'dotted',
+                    'label'     => $action
+                };
+                $dupe_edge_detect{$edge_key} ||= [];
+                push @{ $dupe_edge_detect{$edge_key} }, $edge;
+            }
+            my $output_schema = $self->client->schema( $action_data->{output} || '' );
+            if ($output_schema) {
+                my $from      = $s->id;
+                my $to        = $output_schema->id;
+                my $arrowhead = 'dot';
+                my $arrowtail = 'none';
+
+                my $edge_key = join '', sort ( $from, $to );
+                my $edge = {
+                    'from'      => $from,
+                    'to'        => $to,
+                    'arrowhead' => $arrowhead,
+                    'arrowtail' => $arrowtail,
+                    'via'       => 'action',
+                    'style'     => 'dotted',
+                    'label'     => $action
+                };
                 $dupe_edge_detect{$edge_key} ||= [];
                 push @{ $dupe_edge_detect{$edge_key} }, $edge;
             }
@@ -91,6 +136,7 @@ sub outgoing_edges {
                 'to'        => $a->{to},
                 'arrowhead' => $a->{arrowhead},
                 'arrowtail' => $b->{arrowhead},    # this ones head is the other ones tail
+                'via'       => $a->{via},
             };
             push @outgoing, $new_edge;
         }
@@ -112,7 +158,10 @@ sub do_graphviz {
         $graph->add_edge(
             $edge->{from} => $edge->{to},
             arrowhead     => $edge->{arrowhead},
-            arrowtail     => $edge->{arrowtail}
+            arrowtail     => $edge->{arrowtail},
+            style => $edge->{style} || 'solid',
+            fontsize => $edge->{via} eq 'action' ? 8 : 12,
+            label => $edge->{label} || ''
         );
     }
     $self->page( $graph->as_dot );
@@ -132,6 +181,7 @@ their relationships to one another.
 This can be done for a single schema, non recursive; or for all schemas.
 
 Usage:
+gdapi-shell --config=yourconfig.yml graph > graph.dot
 graph
 graph [schema]
 HELP
