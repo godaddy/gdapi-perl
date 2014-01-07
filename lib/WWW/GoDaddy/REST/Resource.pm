@@ -1,7 +1,6 @@
 package WWW::GoDaddy::REST::Resource;
 
 use Carp;
-use List::MoreUtils qw( any );
 use Moose;
 use WWW::GoDaddy::REST::Schema;
 use WWW::GoDaddy::REST::Util qw( abs_url );
@@ -176,11 +175,11 @@ sub TO_JSON {
 }
 
 sub to_string {
-    my $self = shift;
+    my $self   = shift;
     my $pretty = shift;
 
     my $JSON = JSON->new;
-    if( $pretty ) {
+    if ($pretty) {
         $JSON->pretty(1);
     }
     return $JSON->convert_blessed->encode($self);

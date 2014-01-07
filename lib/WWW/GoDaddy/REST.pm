@@ -6,10 +6,9 @@ use strict;
 #<<<  NO perltidy - must be all on one line
 use version; our $VERSION = version->new('0.1');
 #>>>
-use Carp qw(confess croak);
+use Carp qw(confess);
 use File::Slurp qw( slurp );
 use JSON ();
-use List::Util qw( first );
 use LWP::UserAgent;
 use HTTP::Request;
 use Moose;
