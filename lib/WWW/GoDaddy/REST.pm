@@ -48,8 +48,7 @@ has 'schemas_file' => (
     is            => 'rw',
     isa           => 'Str',
     required      => 0,
-    documentation => 'Optional, cached copy of the schemas JSON to avoid HTTP round trip',
-    coerce        => 1
+    documentation => 'Optional, cached copy of the schemas JSON to avoid HTTP round trip'
 );
 
 has 'schemas' => (

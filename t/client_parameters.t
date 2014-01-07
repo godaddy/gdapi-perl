@@ -17,7 +17,7 @@ use WWW::GoDaddy::REST::Schema;
 
 my $URL_BASE    = 'http://example.com/v1';
 my $SCHEMA_FILE = "$FindBin::Bin/schema.json";
-my $SCHEMA_JSON = slurp( $SCHEMA_FILE );
+my $SCHEMA_JSON = slurp($SCHEMA_FILE);
 
 subtest 'url' => sub {
     throws_ok { my $client = WWW::GoDaddy::REST->new() } qr/\(url\) is required/, 'url - required';
@@ -25,11 +25,11 @@ subtest 'url' => sub {
 };
 
 subtest 'user_agent' => sub {
-    my $ua_default = WWW::GoDaddy::REST->default_user_agent();
-    my $ua_custom  = LWP::UserAgent->new( agent => 'testing and should match' );
-    my $client     = WWW::GoDaddy::REST->new( { url => $URL_BASE } );
-    is_deeply( $client->user_agent,             $ua_default, 'user_agent - default is filled in' );
-    is_deeply( $client->user_agent($ua_custom), $ua_custom,  'user_agent - read write attribute' );
+    my $ua_custom = LWP::UserAgent->new( agent => 'testing and should match' );
+    my $client = WWW::GoDaddy::REST->new( { url => $URL_BASE } );
+    my $defaulted_ua = $client->user_agent;
+    isa_ok( $defaulted_ua, 'LWP::UserAgent', 'user_agent - default is filled in' );
+    is_deeply( $client->user_agent($ua_custom), $ua_custom, 'user_agent - read write attribute' );
 
     $client = WWW::GoDaddy::REST->new( { url => $URL_BASE, user_agent => $ua_custom } );
     is_deeply( $client->user_agent, $ua_custom,
