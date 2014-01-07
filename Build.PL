@@ -32,14 +32,14 @@ Module::Build->new(
         'URI::QueryParam'   => 0,
     },
     build_requires => {
-        'Carp'                      => 0,
-        'File::Slurp'               => 0,
-        'FindBin'                   => 0,
-        'JSON'                      => 0,
-        'LWP::UserAgent'            => 0,
-        'Test::Exception'           => 0,
-        'Test::MockObject::Extends' => 0,
-        'Test::More'                => 0,
+        'Carp'             => 0,
+        'File::Slurp'      => 0,
+        'FindBin'          => 0,
+        'JSON'             => 0,
+        'LWP::UserAgent'   => 0,
+        'Test::Exception'  => 0,
+        'Test::MockObject' => 0,
+        'Test::More'       => 0,
     },
     meta_add => {
         resources => {

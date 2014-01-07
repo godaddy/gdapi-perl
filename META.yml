@@ -36,7 +36,7 @@ build_requires:
   JSON: 0
   LWP::UserAgent: 0
   Test::Exception: 0
-  Test::MockObject::Extends: 0
+  Test::MockObject: 0
   Test::More: 0
 recommends:
   GraphViz: 0

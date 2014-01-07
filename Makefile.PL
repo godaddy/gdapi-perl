@@ -21,7 +21,7 @@ WriteMakefile
                            'Sub::Exporter' => 0,
                            'Term::Shell' => 0,
                            'Test::Exception' => 0,
-                           'Test::MockObject::Extends' => 0,
+                           'Test::MockObject' => 0,
                            'Test::More' => 0,
                            'Text::FormatTable' => 0,
                            'Text::Wrap' => 0,
