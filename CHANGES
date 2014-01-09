@@ -1,4 +1,12 @@
 WWW::GoDaddy::REST history
 
+Release 0.02 - 9th January 2014
+ - Returned values from some APIs are not always resources.
+   Sometimes they are raw strings, null, integers etc.  Methods
+   were added to the Resource class so that you can get at the
+   decoded json directly (see to_struct)
+ - If 'schemas' link is missing in a resource, it falls back
+   on the client base URL and concatenation "/schemas"
+
 Release 0.01 - 6th January 2014
  - initial release

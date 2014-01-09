@@ -120,6 +120,15 @@ sub query_by_id {
     return $client->http_request_as_resource( 'GET', $url );
 }
 
+sub create {
+    my $self = shift;
+
+    my $client = $self->client;
+    my $url    = $self->query_url;
+
+    return $client->http_request_as_resource( 'POST', $url, @_ );
+}
+
 sub is_queryable {
     my $self = shift;
     if ( $self->id eq 'schema' ) {

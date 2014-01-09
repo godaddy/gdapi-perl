@@ -3,16 +3,65 @@ package WWW::GoDaddy::REST::Util;
 use strict;
 use warnings;
 
+use JSON qw();
 use Sub::Exporter -setup => {
     exports => [
         qw( abs_url
             add_filters_to_url
             build_complex_query_url
+            is_json
+            json_decode
+            json_encode
+            json_instance
             )
     ]
 };
 use URI;
 use URI::QueryParam;
+
+sub is_json {
+    my $json    = shift;
+    my $handler = json_instance(@_);
+
+    eval { my $perl = json_decode($json); };
+    if ($@) {
+        return 0;
+    }
+    else {
+        return 1;
+    }
+}
+
+sub json_encode {
+    my $perl    = shift;
+    my $handler = json_instance(@_);
+    return $handler->encode($perl);
+}
+
+sub json_decode {
+    my $json    = shift;
+    my $handler = json_instance(@_);
+    return $handler->decode($json);
+}
+
+sub json_instance {
+
+    my $inst = JSON->new;
+
+    if ( @_ == 1 && UNIVERSAL::isa( $_[0], "JSON" ) ) {
+        return $_[0];
+    }
+    elsif (@_) {
+        while ( my ( $key, $value ) = each %{@_} ) {
+            $inst->property( $key => $value );
+        }
+    }
+    else {
+        $inst->convert_blessed(1);
+        $inst->allow_nonref(1);
+    }
+    return $inst;
+}
 
 sub abs_url {
     my $api_base = shift;
@@ -109,6 +158,60 @@ Utilities used commonly in this package.  Most have to do with URL manipulation.
 =head1 FUNCTIONS
 
 =over 4
+
+=item is_json
+
+Given a json string, return true if it is parsable, false otherwise.
+
+If you need to control the parameters to the L<JSON> module, simply
+pass additional parameters. These will be passed unchanged to C<json_instance>.
+
+Example:
+
+  my $yes = is_json('"asdf"');
+  my $yes = is_json('{"key":"value"}');
+  my $no  = is_json('dafsafsadfsdaf');
+
+=item json_decode
+
+Given a json string, return the perl data structure.  This will C<die()> if it
+can not be parsed.
+
+If you need to control the parameters to the L<JSON> module, simply
+pass additional parameters. These will be passed unchanged to C<json_instance>.
+
+Example:
+
+  my $hashref = json_decode('{"key":"value"}');
+
+=item json_encode
+
+Given a perl data structure, return the json string.  This will C<die()> if it
+can not be serialized.
+
+If you need to control the parameters to the L<JSON> module, simply
+pass additional parameters. These will be passed unchanged to C<json_instance>.
+
+Example:
+
+  my $json = json_encode({ 'key' => 'value' });
+
+=item json_instance
+
+Returns C<JSON> instance.  If no parameters are given the following
+defaults are set: C<convert_blessed>, C<allow_nonref>.
+
+If called with one parameter, it is assumed to be a C<JSON> instance
+and this is returned instead of building a new one.
+
+If called with more than one parameter, it is assumed to be key/value
+pairs and will be passed to the JSON C<property> method two by two.
+
+Example:
+
+  $j = json_instance(); #defaults
+  $j = json_instance( JSON->new ); #pass through
+  $j = json_instance( 'convert_blessed' => 1, 'allow_nonref' => 1 ); # set properies
 
 =item abs_url
 

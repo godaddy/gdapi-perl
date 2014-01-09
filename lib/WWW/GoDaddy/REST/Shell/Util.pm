@@ -3,7 +3,6 @@ package WWW::GoDaddy::REST::Shell::Util;
 use strict;
 use warnings;
 
-use JSON qw();
 use Sub::Exporter -setup => { exports => [qw(get_resource_by_schema_or_uri)] };
 
 sub get_resource_by_schema_or_uri {

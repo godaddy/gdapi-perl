@@ -3,13 +3,13 @@ package WWW::GoDaddy::REST::Shell::DocsCommand;
 use strict;
 use warnings;
 
-use JSON qw();
 use Sub::Exporter -setup => {
     exports => [qw(run_docs smry_docs help_docs comp_docs alias_docs)],
     groups  => { default => [qw(run_docs smry_docs help_docs comp_docs alias_docs)] }
 };
 use Text::FormatTable;
 use WWW::GoDaddy::REST::Shell::Util qw(get_resource_by_schema_or_uri);
+use WWW::GoDaddy::REST::Util qw(json_encode);
 
 sub run_docs {
     my $self = shift;
@@ -113,7 +113,7 @@ sub format_resource_docs {
         my ($table) = $self->format_pairs(
             [ map {"    $_"} keys %fields ],
             [   map {
-                    if   ( ref($_) ) { JSON->new->encode($_) }
+                    if   ( ref($_) ) { json_encode($_) }
                     else             {$_}
                     } values %fields
             ],

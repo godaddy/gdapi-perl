@@ -3,9 +3,10 @@ package WWW::GoDaddy::REST::Resource;
 use Carp;
 use Moose;
 use WWW::GoDaddy::REST::Schema;
-use WWW::GoDaddy::REST::Util qw( abs_url );
+use WWW::GoDaddy::REST::Util qw( abs_url json_instance json_encode json_decode is_json );
 
 use constant DEFAULT_IMPL_CLASS => 'WWW::GoDaddy::REST::Resource';
+use overload '""'               => \&to_string;
 
 has 'client' => (
     is       => 'rw',
@@ -81,7 +82,7 @@ sub type {
 sub type_fq {
     my $self       = shift;
     my $type       = $self->type;
-    my $schema_url = $self->link('schemas');
+    my $schema_url = $self->link('schemas') || sprintf( '%s/schemas', $self->client->url );
     return abs_url( $schema_url, $type );
 }
 
@@ -158,11 +159,24 @@ sub new_subclassed {
     my $class  = shift;
     my $params = shift;
 
-    my $type_short = $params->{fields}->{type} || '';
-    my $type_long = $type_short ? $params->{client}->schemas_url($type_short) : '';
+    my $data = $params->{fields};
 
-    my $impl = $class->find_implementation( ( $type_long, $type_short ) ) || DEFAULT_IMPL_CLASS;
-    eval "require $impl;";
+    my $impl = DEFAULT_IMPL_CLASS;
+    if ( ref($data) eq "HASH" ) {
+        my $type_short = $params->{fields}->{type} || '';
+        my $type_long = $type_short ? $params->{client}->schemas_url($type_short) : '';
+
+        $impl = $class->find_implementation( ( $type_long, $type_short ) ) || DEFAULT_IMPL_CLASS;
+        eval "require $impl;";
+    }
+    else {
+
+        # hmm, the json response didn't seem to be a hashref...
+        # well in this case, there are not really any fields
+        # so the caller will have to check the http_response
+        # content
+        $params->{fields} = {};
+    }
 
     return $impl->new($params);
 
@@ -170,18 +184,32 @@ sub new_subclassed {
 
 sub TO_JSON {
     my $self = shift;
-    return $self->fields;
+    return $self->data;
+}
+
+sub data {
+    my $self = shift;
+
+    my %fields = %{ $self->fields };
+    if (%fields) {
+        return \%fields;
+    }
+    elsif ( $self->http_response ) {
+        my $content = $self->http_response->decoded_content;
+        return is_json($content) ? json_decode($content) : $content;
+    }
+    return {};
 }
 
 sub to_string {
     my $self   = shift;
     my $pretty = shift;
 
-    my $JSON = JSON->new;
+    my $JSON = json_instance();
     if ($pretty) {
         $JSON->pretty(1);
     }
-    return $JSON->convert_blessed->encode($self);
+    return json_encode( $self, $JSON );
 }
 
 my %SCHEMA_TO_IMPL = (
@@ -444,11 +472,19 @@ Returns a hashref that represents this object.  This exists to make using the
 L<JSON> module more convenient.  This does NOT return a JSON STRING, just a 
 perl data structure.
 
+See C<to_string>.
+
 =item to_string
 
 Returns a JSON string that represents this object.  This takes an optional
 parameter, "pretty".  If true, the json output will be prettified. This defaults
 to false.
+
+=item data
+
+The resource is returned as a perl data structure.  Note, if there are no
+C<fields>, then the http_respons is consulted, if json data is found in
+the content, that is returned (for instance, a plane old string or integer).
 
 =back
 

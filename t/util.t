@@ -1,7 +1,8 @@
 #!perl
 
 use Test::More;
-use WWW::GoDaddy::REST::Util qw( abs_url add_filters_to_url build_complex_query_url );
+use WWW::GoDaddy::REST::Util
+    qw( abs_url add_filters_to_url build_complex_query_url is_json json_encode json_decode );
 
 is( abs_url( 'http://example.com/v1/', '/schemas' ),
     'http://example.com/v1/schemas',
@@ -116,5 +117,37 @@ is( build_complex_query_url(
     'http://example.com?search=test&sort=foo&order=asc',
     'squash search params if they exist'
 );
+
+my @json_tests = (
+    {   json    => '"3"',
+        perl    => '3',
+        is_json => 1
+    },
+    {   json    => '3',
+        perl    => 3,
+        is_json => 1,
+    },
+    {   json    => 'asf asfd',
+        perl    => undef,
+        is_json => 0,
+    },
+    {   json    => '{"k":"v"}',
+        perl    => { 'k' => 'v' },
+        is_json => 1
+    }
+);
+
+foreach (@json_tests) {
+    my $json           = $_->{json};
+    my $perl           = $_->{perl};
+    my $is_json        = is_json($json);
+    my $expect_is_json = $_->{is_json};
+
+    is( $is_json, $expect_is_json, "is_json is as expected [$is_json '$json']" );
+    if ($is_json) {
+        is_deeply( json_decode($json), $perl, "json decodes to perl ['$json']" );
+        is_deeply( json_encode($perl), $json, "perl encodes to json ['$json']" );
+    }
+}
 
 done_testing();

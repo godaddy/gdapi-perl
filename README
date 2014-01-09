@@ -20,6 +20,8 @@ SYNOPSIS
      my $resource = $auto->follow_link('link_name');
      my $resource = $auto->do_action('drive', { lat => ..., lon => ...});
 
+     my $new = $client->create('autos', { 'make' => 'Tesla', 'model' => 'S' });
+
      $auto->delete();
 
      my @autos = $client->query('autos',{ 'make' => 'tesla' });
@@ -201,6 +203,16 @@ METHODS
         Example:
 
           $resource = $client->query_by_id('the_schema','the_id');
+
+    create
+        Given a schema and a resource (or hashref), a POST will be made
+        against the collection url of the schema to create the resource.
+
+        This returns a WWW::GoDaddy::REST::Resource (or a subclass).
+
+        Example:
+
+           $car = $client->create('autos', { 'make' => 'Tesla', 'model' => 'S' });
 
     schema
         Given a schema name, return a WWW::GoDaddy::REST::Schema object or

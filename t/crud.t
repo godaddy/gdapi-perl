@@ -5,11 +5,11 @@ use warnings;
 
 use FindBin;
 use WWW::GoDaddy::REST;
-use JSON;
 use LWP::UserAgent;
 use Test::Exception;
 use Test::MockObject::Extends;
 use Test::More;
+use WWW::GoDaddy::REST::Util qw(is_json json_decode json_encode );
 
 my $URL_BASE    = 'http://example.com/v1';
 my $SCHEMA_FILE = "$FindBin::Bin/schema.json";
@@ -21,8 +21,8 @@ $lwp_mock->mock(
 
         my $url = $request->uri->as_string;
 
-        my $content_json = $request->content;
-        my $content_perl = $content_json ? from_json($content_json) : undef;
+        my $content_json = $request->decoded_content;
+        my $content_perl = is_json($content_json) ? json_decode($content_json) : undef;
 
         my $echoResponse = {
             'id'                     => 'echo',
@@ -35,7 +35,7 @@ $lwp_mock->mock(
                 'self'    => $url,
                 'schemas' => "http://example.com/v1/schemas"
             },
-            'actions' => { 'reverb' => "$url?reverb" },
+            'actions' => { 'reverb' => "$url?reverb", 'echoCount' => "$url?echoCount" },
         };
 
         my $content;
@@ -43,8 +43,10 @@ $lwp_mock->mock(
         if ( $request->method eq 'DELETE' ) {
             return HTTP::Response->new(204);
         }
-
-        if ( $request->uri->path =~ m|^/v1/echoResponses/*$| ) {
+        elsif ( $request->uri->path =~ m|^/v1/respondNonResource| ) {
+            $content = $content_json;
+        }
+        elsif ( $request->uri->path =~ m|^/v1/echoResponses/*$| ) {
 
             # collection
             $content = {
@@ -63,16 +65,17 @@ $lwp_mock->mock(
                 $copy{actions}->{reverb} = "http://example.com/v1/echoResponses/echo$_?reverb";
                 push @{ $content->{data} }, \%copy;
             }
+            $content = json_encode($content);
         }
         else {
             if ( $url =~ m|^http://example.com/v1/echoResponses/(.*)$| ) {
                 $echoResponse->{id} = $1;
             }
-            $content = $echoResponse;
+            $content = json_encode($echoResponse);
         }
 
         my $response = HTTP::Response->new(200);
-        $response->content( to_json($content) );
+        $response->content($content);
         return $response;
     }
 );
@@ -106,6 +109,22 @@ subtest 'query' => sub {
     is( $item->f('request_method'), "GET",          "requested method is good" );
     is( $item->f('request_uri'), "$URL_BASE/echoResponses?name=bar", "requested URI is good" );
     is( $item->f('request_content'), '', "requested content is empty" );
+};
+
+subtest 'non resource responding' => sub {
+
+    # test the case where we don't return a resource
+    my $response;
+
+    $response = $client->create( 'respondNonResource', "asdf" );
+    is( $response->data, "asdf", "simple string response is ok" );
+
+    $response = $client->create( 'respondNonResource', "3" );
+    is( $response->data, "3", "simple number response is ok" );
+
+    $response = $client->create( 'respondNonResource', 'asdf asdf' );
+    is( $response->data, "asdf asdf", "simple string response is ok" );
+
 };
 
 subtest 'save' => sub {
@@ -165,6 +184,15 @@ subtest 'do_action' => sub {
         { 'amount' => 'alot' },
         'action request content is correct'
     );
+
+    my $done3 = $response->do_action( 'echoCount', "3" );
+    is( $done3->f('request_method'), 'POST', 'action http method is POST' );
+    is( $done3->f('request_uri'),
+        'http://example.com/v1/echoResponses/1234?echoCount',
+        'action url is correct'
+    );
+    is( $done3->f('request_content'),        '"3"', 'action request content is present' );
+    is( $done3->f('request_content_struct'), '3',   'perl data struct is correct' );
 };
 
 done_testing();

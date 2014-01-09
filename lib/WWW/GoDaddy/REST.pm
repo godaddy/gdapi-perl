@@ -4,17 +4,19 @@ use warnings;
 use strict;
 
 #<<<  NO perltidy - must be all on one line
-use version; our $VERSION = version->new('0.1');
+use version; our $VERSION = version->new('0.2');
 #>>>
 use Carp qw(confess);
+use English qw( -no_match_vars );
 use File::Slurp qw( slurp );
-use JSON ();
 use LWP::UserAgent;
 use HTTP::Request;
 use Moose;
 use WWW::GoDaddy::REST::Resource;
 use WWW::GoDaddy::REST::Schema;
-use WWW::GoDaddy::REST::Util qw(abs_url);
+use WWW::GoDaddy::REST::Util qw(abs_url json_encode json_decode is_json );
+
+my $JSON_MIME_TYPE = 'application/json';
 
 has 'url' => (
     is            => 'rw',
@@ -96,6 +98,12 @@ sub query_by_id {
     return $self->schema($type)->query_by_id(@_);
 }
 
+sub create {
+    my $self = shift;
+    my $type = shift;
+    return $self->schema($type)->create(@_);
+}
+
 sub schema {
     my $self = shift;
     my $name = shift;
@@ -133,7 +141,12 @@ sub http_request_as_resource {
     );
 
     if ( !$http_response->is_success && $self->raise_http_errors ) {
-        die($resource);
+        if ($EXCEPTIONS_BEING_CAUGHT) {
+            die($resource);
+        }
+        else {
+            die( $resource->to_string );
+        }
     }
 
     return $resource;
@@ -141,25 +154,29 @@ sub http_request_as_resource {
 
 sub http_request {
     my $self = shift;
-    my ( $method, $uri, $content ) = @_;
+    my ( $method, $uri, $perl_data ) = @_;
 
     $uri = abs_url( $self->url, $uri );
 
-    if ( defined $content && ref($content) ) {
-        $content = eval { JSON->new->convert_blessed->encode($content) };
+    my $headers = undef;
+
+    my $content;
+    if ( defined $perl_data ) {
+        $content = eval { json_encode($perl_data) };
         if ($@) {
-            confess "$@:\n$content";
+            confess "$@:\n$perl_data";
         }
+        $headers = [ 'Content-type' => $JSON_MIME_TYPE ];
     }
 
-    my $request = $self->build_http_request( $method, $uri, undef, $content );
+    my $request = $self->build_http_request( $method, $uri, $headers, $content );
 
     my $response      = $self->user_agent->request($request);
     my $response_text = $response->content;
 
     my $content_data;
     if ($response_text) {
-        $content_data = eval { JSON->new->convert_blessed->decode($response_text) };
+        $content_data = eval { json_decode($response_text) };
         if ($@) {
             confess "$@:\n$response_text";
         }
@@ -183,7 +200,7 @@ sub build_http_request {
 
 sub default_user_agent {
     my $ua = LWP::UserAgent->new;
-    $ua->default_headers->push_header( 'Accept' => 'application/json' );
+    $ua->default_headers->push_header( 'Accept' => $JSON_MIME_TYPE );
     return $ua;
 }
 
@@ -198,7 +215,7 @@ sub _build_schemas {
         $schema_json = $self->http_request_schemas_json;
     }
 
-    my $struct = eval { JSON->new->convert_blessed->decode($schema_json); };
+    my $struct = eval { json_decode($schema_json) };
     if ($@) {
         confess "$@:\n$schema_json";
     }
@@ -238,6 +255,8 @@ WWW::GoDaddy::REST - Work with services conforming to the GDAPI spec
 
  my $resource = $auto->follow_link('link_name');
  my $resource = $auto->do_action('drive', { lat => ..., lon => ...});
+
+ my $new = $client->create('autos', { 'make' => 'Tesla', 'model' => 'S' });
 
  $auto->delete();
 
@@ -437,6 +456,17 @@ This returns a L<WWW::GoDaddy::REST::Resource> (or a subclass).
 Example:
 
   $resource = $client->query_by_id('the_schema','the_id');
+
+=item create
+
+Given a schema and a resource (or hashref), a POST will be made
+against the collection url of the schema to create the resource.
+
+This returns a L<WWW::GoDaddy::REST::Resource> (or a subclass).
+
+Example:
+
+   $car = $client->create('autos', { 'make' => 'Tesla', 'model' => 'S' });
 
 =item schema
 
