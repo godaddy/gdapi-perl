@@ -123,10 +123,15 @@ sub schemas_url {
 }
 
 sub http_request_schemas_json {
-    my $self    = shift;
-    my $url     = $self->schemas_url;
-    my $request = $self->build_http_request( 'GET', $url );
-    return $self->user_agent->request($request)->content;
+    my $self = shift;
+
+    my $request  = $self->build_http_request( 'GET', $self->schemas_url );
+    my $response = $self->user_agent->request($request);
+    my $content  = $response->content;
+    if ( !$response->is_success && $self->raise_http_errors ) {
+        die($content);
+    }
+    return $content;
 }
 
 sub http_request_as_resource {

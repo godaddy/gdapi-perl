@@ -80,10 +80,11 @@ sub type {
 }
 
 sub type_fq {
-    my $self       = shift;
-    my $type       = $self->type;
-    my $schema_url = $self->link('schemas') || sprintf( '%s/schemas', $self->client->url );
-    return abs_url( $schema_url, $type );
+    my $self = shift;
+
+    my $base_url = $self->schemas_url;
+
+    return abs_url( $base_url, $self->type );
 }
 
 sub schema {
@@ -134,6 +135,21 @@ sub field {
     else {
         return $self->_set_field(@_);
     }
+}
+
+sub schemas_url {
+    my $self = shift;
+
+    my $found;
+
+    my $http_resp = $self->http_response;
+    my $link      = $self->link('schemas');
+
+    if ( $http_resp && $http_resp->header('X-API-Schemas') ) {
+        return $http_resp->header('X-API-Schemas');
+    }
+
+    return $self->client->schemas_url;
 }
 
 sub _get_field {
@@ -409,6 +425,16 @@ Return the name of the schema type that this object belongs to.
 =item type_fq
 
 Return the full URI to the schema type that this object belongs to.
+
+=item schemas_url
+
+Returns the URL for the schema collection.  This differs from the
+client C<schemas_url> method since it has more places to look for hints
+of the schemas collection url (headers, json response etc).
+
+Example:
+
+  $r->schemas_url();
 
 =item schema
 

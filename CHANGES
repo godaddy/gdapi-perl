@@ -7,6 +7,8 @@ Release 0.02 - 9th January 2014
    decoded json directly (see the Resource->data method)
  - If 'schemas' link is missing in a resource, it falls back
    on the client base URL and concatenation "/schemas"
+ - Honor the X-API-Schemas header
+ - Honor the raise_http_errors flag when fetching the schemas
 
 Release 0.01 - 6th January 2014
  - initial release
