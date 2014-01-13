@@ -1,6 +1,9 @@
 WWW::GoDaddy::REST history
 
 Release 0.03 - 13th January 2014
+ - If 'type' is missing, f_as_resources will attempt to 
+   fill in the information from the schema
+ - save/delete resource works without 'self' link
  - ability to register Resource subclasses that will be
    used as the implemented subclass for a given schema
    type.

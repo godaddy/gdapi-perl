@@ -47,6 +47,31 @@ subtest 'fields' => sub {
 
             my $not_a_res = $r->f_as_resources('type');
             is( $not_a_res, 'collection', 'get - with transformation, but not transformed' );
+
+            # missing a type field
+            my $schema_res = WWW::GoDaddy::REST::Resource->new(
+                {   client => $c,
+                    fields => {
+                        id              => 'magic',
+                        type            => 'schema',
+                        resourceActions => {
+                            'cast' => {
+                                'input'  => 'string',
+                                'output' => 'bool'
+                            }
+                        }
+                    }
+                }
+            );
+            my $actions_res = $schema_res->f_as_resources('resourceActions');
+
+            isa_ok(
+                $actions_res->{cast},
+                'WWW::GoDaddy::REST::Resource',
+                'get - with transformation'
+            );
+            is( $actions_res->{cast}->type, 'apiaction', 'type was filled in' );
+
         };
     };
     subtest 'set' => sub {

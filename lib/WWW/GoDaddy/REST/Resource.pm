@@ -28,13 +28,13 @@ has 'http_response' => (
 
 sub save {
     my $self = shift;
-    my $url  = $self->link('self');
+    my $url = $self->link('self') || $self->client->schema( $self->type )->query_url( $self->id );
     return $self->client->http_request_as_resource( 'PUT', $url, $self );
 }
 
 sub delete {
     my $self = shift;
-    my $url  = $self->link('self');
+    my $url = $self->link('self') || $self->client->schema( $self->type )->query_url( $self->id );
     return $self->client->http_request_as_resource( 'DELETE', $url, $self );
 }
 
@@ -128,9 +128,9 @@ sub f {
 }
 
 sub f_as_resources {
-    my $self  = shift;
-    my $field = shift;
-    my $data  = $self->f($field);
+    my $self     = shift;
+    my $field    = shift;
+    my $raw_data = $self->f($field);
 
     my ( $container, $type ) = $self->schema->resource_field_type($field);
     my %defaults = (
@@ -138,36 +138,33 @@ sub f_as_resources {
         http_response => $self->http_response
     );
 
-    my $ret = $data;
-    if ($container) {
-        if ( $container eq 'map' ) {
-            $ret = {};
-            while ( my ( $k, $v ) = each %{$data} ) {
-                $ret->{$k}
-                    = ref($v) eq 'HASH' ? $self->new_subclassed( { %defaults, fields => $v } ) : $v;
+    my $type_schema = $self->client->schema($type);
+    if ($type_schema) {
+        if ( $container && $container eq 'map' ) {
+            my %ret;
+            foreach ( my ( $k, $v ) = each %{$raw_data} ) {
+                $v->{type} ||= $type_schema->id;
+                $ret{$k} = $self->new_subclassed( { %defaults, fields => $v } );
             }
+            return \%ret;
         }
-        elsif ( $container eq 'array' ) {
-            $ret = [];
-            foreach ( @{$data} ) {
-                push @{$ret},
-                    ref($_) eq 'HASH' ? $self->new_subclassed( { %defaults, fields => $_, } ) : $_;
+        elsif ( $container && $container eq 'array' ) {
+            my @ret;
+            foreach my $v ( @{$raw_data} ) {
+                $v->{type} ||= $type_schema->id;
+                push @ret, $self->new_subclassed( { %defaults, fields => $v } );
             }
+            return \@ret;
         }
-        else {
-            $ret
-                = ref($data) eq 'HASH'
-                ? $self->new_subclassed( { %defaults, fields => $data } )
-                : $data;
+        elsif ( ref($raw_data) eq 'HASH' ) {
+            my %ret = %{$raw_data};
+            $ret{type} ||= $type_schema->id;
+            return $self->new_subclassed( { %defaults, fields => \%ret } );
         }
     }
-    else {
-        $ret
-            = ref($data) eq 'HASH'
-            ? $self->new_subclassed( { %defaults, fields => $data } )
-            : $data;
-    }
-    return $ret;
+
+    # just return the raw data if not returned otherwise
+    return $raw_data;
 
 }
 
