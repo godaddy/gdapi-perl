@@ -4,7 +4,7 @@ use warnings;
 use strict;
 
 #<<<  NO perltidy - must be all on one line
-use version; our $VERSION = version->new('0.2');
+use version; our $VERSION = version->new('0.3');
 #>>>
 use Carp qw(confess);
 use English qw( -no_match_vars );

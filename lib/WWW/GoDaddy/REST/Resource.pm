@@ -288,6 +288,13 @@ sub find_implementation {
     return;
 }
 
+sub register_implementation {
+    my $class = shift;
+    my ( $schema_name, $subclass_name ) = @_;
+    $SCHEMA_TO_IMPL{$schema_name} = $subclass_name;
+    return;
+}
+
 1;
 
 =head1 NAME
@@ -371,6 +378,15 @@ Example:
 
   find_implementation( 'schema' );
   # WWW::GoDaddy::REST::Schema
+
+=item register_implementation
+
+Register a subclass handler for a schema type given a schema name and the
+name of a L<WWW::GoDaddy::REST::Resource> subclass.
+
+Example:
+
+  WWW::GoDaddy::REST::Resource->register_subclass( 'account' => 'My::AccountRes' );
 
 =back
 

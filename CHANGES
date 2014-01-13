@@ -1,5 +1,10 @@
 WWW::GoDaddy::REST history
 
+Release 0.03 - 13th January 2014
+ - ability to register Resource subclasses that will be
+   used as the implemented subclass for a given schema
+   type.
+
 Release 0.02 - 9th January 2014
  - f_as_resources method added
  - Returned values from some APIs are not always resources.

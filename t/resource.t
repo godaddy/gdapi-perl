@@ -59,4 +59,21 @@ subtest 'fields' => sub {
     };
 };
 
+subtest 'find_implementation' => sub {
+    is( WWW::GoDaddy::REST::Resource->find_implementation('schema'),
+        'WWW::GoDaddy::REST::Schema', 'schema handler is present' );
+    is( WWW::GoDaddy::REST::Resource->find_implementation('collection'),
+        'WWW::GoDaddy::REST::Collection',
+        'collection handler is present'
+    );
+    is( WWW::GoDaddy::REST::Resource->find_implementation('asfasdfadsf'),
+        undef, 'unknown handler should return undef' );
+};
+
+subtest 'register_implementation' => sub {
+    WWW::GoDaddy::REST::Resource->register_implementation( 'foo' => 'Bar::Baz' );
+    is( WWW::GoDaddy::REST::Resource->find_implementation('foo'),
+        'Bar::Baz', 'registering subclasses works' );
+};
+
 done_testing();
