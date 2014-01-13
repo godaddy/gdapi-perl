@@ -74,6 +74,17 @@ subtest 'register_implementation' => sub {
     WWW::GoDaddy::REST::Resource->register_implementation( 'foo' => 'Bar::Baz' );
     is( WWW::GoDaddy::REST::Resource->find_implementation('foo'),
         'Bar::Baz', 'registering subclasses works' );
+    WWW::GoDaddy::REST::Resource->register_implementation(
+        'foo2' => 'Bar2::Baz2',
+        'bar2' => 'Biz2::Buzz2'
+    );
+    is( WWW::GoDaddy::REST::Resource->find_implementation('foo2'),
+        'Bar2::Baz2', 'registering multiple subclasses works 1' );
+    is( WWW::GoDaddy::REST::Resource->find_implementation('bar2'),
+        'Biz2::Buzz2', 'registering multiple subclasses works 2' );
+
+    dies_ok { WWW::GoDaddy::REST::Resource->register_implementation( 1, 2, 3 ) }
+    'odd number of elements dies';
 };
 
 done_testing();

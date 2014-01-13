@@ -1,6 +1,7 @@
 package WWW::GoDaddy::REST::Resource;
 
 use Carp;
+use List::MoreUtils qw( natatime );
 use Moose;
 use WWW::GoDaddy::REST::Util qw( abs_url json_instance json_encode json_decode is_json );
 
@@ -290,8 +291,15 @@ sub find_implementation {
 
 sub register_implementation {
     my $class = shift;
-    my ( $schema_name, $subclass_name ) = @_;
-    $SCHEMA_TO_IMPL{$schema_name} = $subclass_name;
+
+    if ( @_ % 2 != 0 ) {
+        croak("Expecting even number of parameters");
+    }
+
+    my $iterator = natatime 2, @_;
+    while ( my ( $schema, $subclass ) = $iterator->() ) {
+        $SCHEMA_TO_IMPL{$schema} = $subclass;
+    }
     return;
 }
 
@@ -384,9 +392,12 @@ Example:
 Register a subclass handler for a schema type given a schema name and the
 name of a L<WWW::GoDaddy::REST::Resource> subclass.
 
+This can take as many schema => resource class pairs as you want.
+
 Example:
 
   WWW::GoDaddy::REST::Resource->register_subclass( 'account' => 'My::AccountRes' );
+  WWW::GoDaddy::REST::Resource->register_subclass( 'foo' => 'Bar', 'baz' => 'Buzz' );
 
 =back
 
