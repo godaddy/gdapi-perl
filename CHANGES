@@ -1,6 +1,7 @@
 WWW::GoDaddy::REST history
 
 Release 0.02 - 9th January 2014
+ - f_as_resources method added
  - Returned values from some APIs are not always resources.
    Sometimes they are raw strings, null, integers etc.  Methods
    were added to the Resource class so that you can get at the

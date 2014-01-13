@@ -2,7 +2,6 @@ package WWW::GoDaddy::REST::Resource;
 
 use Carp;
 use Moose;
-use WWW::GoDaddy::REST::Schema;
 use WWW::GoDaddy::REST::Util qw( abs_url json_instance json_encode json_decode is_json );
 
 use constant DEFAULT_IMPL_CLASS => 'WWW::GoDaddy::REST::Resource';
@@ -22,7 +21,7 @@ has 'fields' => (
 
 has 'http_response' => (
     is       => 'ro',
-    isa      => 'HTTP::Response',
+    isa      => 'Maybe[HTTP::Response]',
     required => 0
 );
 
@@ -89,7 +88,7 @@ sub type_fq {
 
 sub schema {
     my $self = shift;
-    my $schema = WWW::GoDaddy::REST::Schema->registry_lookup( $self->type_fq, $self->type );
+    my $schema = $self->client->schema( $self->type_fq ) || $self->client->schema( $self->type );
     return $schema;
 }
 
@@ -125,6 +124,50 @@ sub actions {
 
 sub f {
     return shift->field(@_);
+}
+
+sub f_as_resources {
+    my $self  = shift;
+    my $field = shift;
+    my $data  = $self->f($field);
+
+    my ( $container, $type ) = $self->schema->resource_field_type($field);
+    my %defaults = (
+        client        => $self->client,
+        http_response => $self->http_response
+    );
+
+    my $ret = $data;
+    if ($container) {
+        if ( $container eq 'map' ) {
+            $ret = {};
+            while ( my ( $k, $v ) = each %{$data} ) {
+                $ret->{$k}
+                    = ref($v) eq 'HASH' ? $self->new_subclassed( { %defaults, fields => $v } ) : $v;
+            }
+        }
+        elsif ( $container eq 'array' ) {
+            $ret = [];
+            foreach ( @{$data} ) {
+                push @{$ret},
+                    ref($_) eq 'HASH' ? $self->new_subclassed( { %defaults, fields => $_, } ) : $_;
+            }
+        }
+        else {
+            $ret
+                = ref($data) eq 'HASH'
+                ? $self->new_subclassed( { %defaults, fields => $data } )
+                : $data;
+        }
+    }
+    else {
+        $ret
+            = ref($data) eq 'HASH'
+            ? $self->new_subclassed( { %defaults, fields => $data } )
+            : $data;
+    }
+    return $ret;
+
 }
 
 sub field {
@@ -367,6 +410,24 @@ Example:
 
   $res->f('field_name');       # get
   $res->f('field_name','new'); # set
+
+=item f_as_resources
+
+Get a field by name.  If it is a resource, this will turn it into an
+object instead of giving you the raw hash reference as the return value.
+
+Note, if the field is a 'map' or 'array' of resources, every item in
+those lists will be 'resourcified'.
+
+If this is not a resource, then it does return the raw value.
+
+Example:
+
+  # return value is a WWW::GoDaddy::REST::Resource, not a hash ref
+  $driver = $car->f('driver');
+
+See C<f> if you want the raw value.  This will return the raw value, if
+the value does not look like a resource.
 
 =item field
 

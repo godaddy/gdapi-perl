@@ -24,5 +24,6 @@ t/client_parameters.t
 t/crud.t
 t/pod.t
 t/pod_coverage.t
+t/resource.t
 t/schema.json
 t/util.t

@@ -6,12 +6,7 @@ extends 'WWW::GoDaddy::REST::Resource';
 
 sub items {
     my $self = shift;
-
-    my $client = $self->client;
-    my @items  = @{ $self->f('data') };
-
-    return map { $self->new_subclassed( { client => $client, fields => $_ } ) } @items;
-
+    return @{ $self->f_as_resources('data') };
 }
 
 1;
