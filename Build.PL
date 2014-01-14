@@ -2,7 +2,7 @@ use Module::Build;
 
 # See perldoc Module::Build for details of how this works
 
-Module::Build->new(
+my $mb = Module::Build->new(
     module_name        => 'WWW::GoDaddy::REST',
     license            => 'mit',
     dist_abstract      => 'Use REST webservices that conform to the GDAPI specification',
@@ -11,9 +11,10 @@ Module::Build->new(
     create_makefile_pl => 'traditional',
     script_files       => { 'script/gdapi-shell' => 'script/gdapi-shell', },
     recommends         => {
-        'Config::Tiny' => 0,    # Config::Any .ini file parsing
-        'GraphViz'     => 0,
-        'YAML::XS'     => 0,    # Config::Any .yml file parsing
+        'Config::Tiny'         => 0,    # Config::Any .ini file parsing
+        'GraphViz'             => 0,
+        'YAML::XS'             => 0,    # Config::Any .yml file parsing
+        'LWP::Protocol::https' => 0,
     },
     requires => {
         'Carp'              => 0,
@@ -21,13 +22,11 @@ Module::Build->new(
         'File::Slurp'       => 0,
         'Getopt::Long'      => 0,
         'HTTP::Request'     => 0,
-        'IO::Socket::SSL'   => 0,    # LWP::UserAgent https/ssl
         'JSON'              => 0,
         'LWP::UserAgent'    => 0,
         'List::MoreUtils'   => 0,
         'List::Util'        => 0,
         'Moose'             => 0,
-        'Mozilla::CA'       => 0,    # LWP::UserAgent https/ssl
         'Pod::Usage'        => 0,
         'Term::Shell'       => 0,
         'Text::FormatTable' => 0,
@@ -53,4 +52,5 @@ Module::Build->new(
             bugtracker => 'https://github.com/godaddy/gdapi-perl/issues'
         },
     },
-)->create_build_script;
+);
+$mb->create_build_script;
