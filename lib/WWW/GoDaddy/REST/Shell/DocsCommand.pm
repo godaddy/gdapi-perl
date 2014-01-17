@@ -34,11 +34,16 @@ sub run_docs {
         return 0;
     }
 
-    if ( $resource->type() eq 'schema' ) {
-        return format_schema_docs( $self, $resource );
-    }
-    else {
-        return format_resource_docs( $self, $resource );
+    eval {
+        if ( $resource->type() eq 'schema' ) {
+            return format_schema_docs( $self, $resource );
+        }
+        else {
+            return format_resource_docs( $self, $resource );
+        }
+    };
+    if ($@) {
+        warn($@);
     }
 
 }

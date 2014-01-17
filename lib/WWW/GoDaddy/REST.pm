@@ -4,7 +4,7 @@ use warnings;
 use strict;
 
 #<<<  NO perltidy - must be all on one line
-use version; our $VERSION = version->new('0.3');
+use version; our $VERSION = version->new('0.4');
 #>>>
 use Carp qw(confess);
 use English qw( -no_match_vars );
@@ -204,7 +204,7 @@ sub build_http_request {
 }
 
 sub default_user_agent {
-    my $ua = LWP::UserAgent->new;
+    my $ua = LWP::UserAgent->new( env_proxy => 1 );
     $ua->default_headers->push_header( 'Accept' => $JSON_MIME_TYPE );
     return $ua;
 }

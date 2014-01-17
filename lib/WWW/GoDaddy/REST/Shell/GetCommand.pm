@@ -25,7 +25,11 @@ sub run_get {
         return 0;
     }
 
-    $self->page( $resource->to_string(1) . "\n" );
+    eval { $self->page( $resource->to_string(1) . "\n" ); };
+    if ($@) {
+        warn($@);
+    }
+
     return 1;
 }
 
