@@ -1,10 +1,13 @@
 WWW::GoDaddy::REST history
 
-Release 0.04 - 17th January 2014
+Release 0.4.1 - 20th January 2014
+ - Better testing
+
+Release 0.4 - 17th January 2014
  - LWP honors environmental proxy settings now
  - Death in some gdapi-shell commands does not cause an exit
 
-Release 0.03 - 13th January 2014
+Release 0.3 - 13th January 2014
  - If 'type' is missing, f_as_resources will attempt to 
    fill in the information from the schema
  - save/delete resource works without 'self' link
@@ -12,7 +15,7 @@ Release 0.03 - 13th January 2014
    used as the implemented subclass for a given schema
    type.
 
-Release 0.02 - 9th January 2014
+Release 0.2 - 9th January 2014
  - f_as_resources method added
  - Returned values from some APIs are not always resources.
    Sometimes they are raw strings, null, integers etc.  Methods
@@ -23,5 +26,5 @@ Release 0.02 - 9th January 2014
  - Honor the X-API-Schemas header
  - Honor the raise_http_errors flag when fetching the schemas
 
-Release 0.01 - 6th January 2014
+Release 0.1 - 6th January 2014
  - initial release
