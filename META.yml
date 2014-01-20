@@ -1,6 +1,6 @@
 ---
 name: WWW-GoDaddy-REST
-version: 0.4.1
+version: 0.5.0
 author:
   - 'David Bartle <davidb@mediatemple.net>'
 abstract: Use REST webservices that conform to the GDAPI specification
@@ -44,7 +44,7 @@ recommends:
 provides:
   WWW::GoDaddy::REST:
     file: lib/WWW/GoDaddy/REST.pm
-    version: 0.4.1
+    version: 0.5.0
   WWW::GoDaddy::REST::Collection:
     file: lib/WWW/GoDaddy/REST/Collection.pm
   WWW::GoDaddy::REST::Resource:
