@@ -44,7 +44,7 @@ recommends:
 provides:
   WWW::GoDaddy::REST:
     file: lib/WWW/GoDaddy/REST.pm
-    version: 0.5.0
+    version: 0.5
   WWW::GoDaddy::REST::Collection:
     file: lib/WWW/GoDaddy/REST/Collection.pm
   WWW::GoDaddy::REST::Resource:
