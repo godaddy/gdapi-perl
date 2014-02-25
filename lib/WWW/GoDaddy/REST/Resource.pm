@@ -3,6 +3,8 @@ package WWW::GoDaddy::REST::Resource;
 use Carp;
 use List::MoreUtils qw( natatime );
 use Moose;
+use URI;
+use URI::QueryParam;
 use WWW::GoDaddy::REST::Util qw( abs_url json_instance json_encode json_decode is_json );
 
 use constant DEFAULT_IMPL_CLASS => 'WWW::GoDaddy::REST::Resource';
@@ -58,8 +60,19 @@ sub do_action {
 
     my $action_url = $self->action($action);
     if ( !$action_url ) {
-        my @valid_actions = keys %{ $self->actions() };
-        croak("$action is not a valid action name.  Did you mean one of these? @valid_actions");
+        if($self->id) {
+            # try and find an action in the schema as fallback
+            my $schema = $self->schema();
+            my $resource_actions = $schema->f('resourceActions') || {};
+            if( exists $resource_actions->{$action} ) {
+                my $self_uri = URI->new($self->link('self') || $schema->query_url( $self->id ));
+                $self_uri->query("$action");
+                $action_url = "$self_uri";
+            }
+        }
+        if( !$action_url ) {
+            croak("$action is not a valid action name.");
+        }
     }
 
     return $self->client->http_request_as_resource( 'POST', $action_url, $params );
@@ -120,7 +133,7 @@ sub action {
 }
 
 sub actions {
-    return shift->f('actions');
+    return shift->f('actions') || {};
 }
 
 sub f {

@@ -241,11 +241,38 @@
         },
         "request_content": {
           "type": "string"
+        },
+        "child_resource": {
+          "type": "echoResponseChild"
         }
       },
       "resourceMethods": [
         "GET"
       ]
+    },
+    {
+      "id": "echoResponseChild",
+      "type": "schema",
+      "links": {
+        "self": "http://example.com/v1/schemas/echoResponseChild",
+        "schemas": "http://example.com/v1/schemas",
+        "collection": "http://example.com/v1/echoResponseChildren"
+      },
+      "collectionActions": {},
+      "collectionFields": {},
+      "collectionFilters": {},
+      "collectionMethods": [],
+      "resourceActions": {
+        "exampleAction": {
+          "output" : "int"
+        }
+      },
+      "resourceFields": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "resourceMethods": []
     },
     {
       "id": "respondNonResource",

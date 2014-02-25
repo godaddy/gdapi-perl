@@ -1,5 +1,9 @@
 WWW::GoDaddy::REST history
 
+Release 0.6.0 - 24th February 2014
+ - do_action falls back to schema if action can not be
+   found in action hash
+
 Release 0.5.0 - 20th January 2014
  - Better testing
 

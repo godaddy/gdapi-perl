@@ -27,6 +27,9 @@ $lwp_mock->mock(
         my $echoResponse = {
             'id'                     => 'echo',
             'type'                   => 'echoResponse',
+            'child_resource'         => {
+                'id' => 'child'
+            },
             'request_method'         => $request->method,
             'request_uri'            => $url,
             'request_content'        => $content_json,
@@ -46,7 +49,7 @@ $lwp_mock->mock(
         elsif ( $request->uri->path =~ m|^/v1/respondNonResource| ) {
             $content = $content_json;
         }
-        elsif ( $request->uri->path =~ m|^/v1/echoResponses/*$| ) {
+        elsif ( $request->uri->path =~ m|^/v1/echoResponses/?$| ) {
 
             # collection
             $content = {
@@ -67,10 +70,15 @@ $lwp_mock->mock(
             }
             $content = json_encode($content);
         }
+        elsif ( $request->uri->path =~ m|^/v1/echoResponseChildren/(.*)$| ) {
+            $echoResponse->{id} = $1;
+            $content = json_encode($echoResponse);
+        }
         else {
             if ( $url =~ m|^http://example.com/v1/echoResponses/(.*)$| ) {
                 $echoResponse->{id} = $1;
             }
+
             $content = json_encode($echoResponse);
         }
 
@@ -193,6 +201,19 @@ subtest 'do_action' => sub {
     );
     is( $done3->f('request_content'),        '"3"', 'action request content is present' );
     is( $done3->f('request_content_struct'), '3',   'perl data struct is correct' );
+
+    my $child = $response->f_as_resources('child_resource');
+    is( $child->id, 'child', 'child resource id matches' );
+    is( $child->type, 'echoResponseChild', 'child resource type matches' );
+    my $done4 = $child->do_action( 'exampleAction', {} );
+    is( $done4->f('request_method'), 'POST', 'action http method is POST' );
+    is( $done4->f('request_uri'),
+        'http://example.com/v1/echoResponseChildren/child?exampleAction',
+        'action url is correct'
+    );
+
+    dies_ok { $response->do_action( 'noExiste' ) } 'no action in fields or schema';
+
 };
 
 done_testing();
