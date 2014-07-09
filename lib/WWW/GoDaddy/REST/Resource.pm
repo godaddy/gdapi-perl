@@ -92,6 +92,10 @@ sub type {
     return shift->f('type');
 }
 
+sub resource_type {
+    return shift->f('resourceType');
+}
+
 sub type_fq {
     my $self = shift;
 
@@ -100,9 +104,20 @@ sub type_fq {
     return abs_url( $base_url, $self->type );
 }
 
+sub resource_type_fq {
+    my $self = shift;
+
+    return unless $self->resource_type;
+
+    return abs_url( $self->schemas_url, $self->resource_type );
+}
+
 sub schema {
     my $self = shift;
-    my $schema = $self->client->schema( $self->type_fq ) || $self->client->schema( $self->type );
+    my $schema 
+        = $self->client->schema( $self->resource_type_fq )
+        || $self->client->schema( $self->type_fq )
+        || $self->client->schema( $self->type );
     return $schema;
 }
 
@@ -145,7 +160,15 @@ sub f_as_resources {
     my $field    = shift;
     my $raw_data = $self->f($field);
 
-    my ( $container, $type ) = $self->schema->resource_field_type($field);
+    my ( $container, $type );
+
+    # if the 'field' is data, skip detection and use the resource type
+    if ( $field eq 'data' ) {
+        ( $container, $type ) = ( 'array', $self->resource_type );
+    }
+    else {
+        ( $container, $type ) = $self->schema->resource_field_type($field);
+    }
     my %defaults = (
         client        => $self->client,
         http_response => $self->http_response
@@ -523,6 +546,14 @@ Return the name of the schema type that this object belongs to.
 =item type_fq
 
 Return the full URI to the schema type that this object belongs to.
+
+=item resource_type
+
+Return the name of the schema type that this collection's objects belong to.
+
+=item resource_type_fq
+
+Return the full URI to the schema type that this collection's objects belong to.
 
 =item schemas_url
 

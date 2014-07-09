@@ -167,6 +167,7 @@ sub registry_lookup {
     my $class     = shift;
     my @possibles = @_;
     foreach my $find (@possibles) {
+        next unless defined $find;
         if ( exists $REGISTRY{$find} and defined $REGISTRY{$find} ) {
             return $REGISTRY{$find};
         }

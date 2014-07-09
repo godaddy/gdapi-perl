@@ -24,6 +24,9 @@
         "id": {
           "type": "string"
         },
+        "type": {
+          "type": "string"
+        },
         "resourceActions": {
           "type": "map[apiaction]"
         },
