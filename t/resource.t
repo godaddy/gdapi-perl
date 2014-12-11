@@ -42,8 +42,8 @@ subtest 'fields' => sub {
         subtest 'converting to Resource objects' => sub {
             my $data_plain = $r->f('data');
             my $data_res   = $r->f_as_resources('data');
-            isnt( $data_plain->[0], 'WWW::GoDaddy::REST::Resource', 'get - no transformation' );
-            isa_ok( $data_res->[0], 'WWW::GoDaddy::REST::Resource', 'get - with transformation' );
+            isnt( $data_plain->[0], 'WWW::GoDaddy::REST::Schema', 'get - no transformation' );
+            isa_ok( $data_res->[0], 'WWW::GoDaddy::REST::Schema', 'get - with transformation' );
 
             my $not_a_res = $r->f_as_resources('type');
             is( $not_a_res, 'collection', 'get - with transformation, but not transformed' );

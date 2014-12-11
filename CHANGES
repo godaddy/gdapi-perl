@@ -1,5 +1,8 @@
 WWW::GoDaddy::REST history
 
+Release 0.7.0 - 9th July 2014
+ - fix collection search to return appropriate resource objects
+
 Release 0.6.0 - 24th February 2014
  - do_action falls back to schema if action can not be
    found in action hash
