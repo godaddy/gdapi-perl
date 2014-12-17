@@ -117,6 +117,22 @@ subtest 'query' => sub {
     is( $item->f('request_method'), "GET",          "requested method is good" );
     is( $item->f('request_uri'), "$URL_BASE/echoResponses?name=bar", "requested URI is good" );
     is( $item->f('request_content'), '', "requested content is empty" );
+
+    my $id = '123';
+    @items = $client->query(
+        'echoResponse',
+        {   'id'           => $id,
+            'showAccounts' => [
+                { 'value' => 'true' }    # implicit 'eq'
+            ],
+        }
+    );
+    ($item) = @items;
+    is( $item->type,                'echoResponse', 'correct item type returned' );
+    is( $item->f('request_method'), "GET",          "requested method is good" );
+    is( $item->f('request_uri'), sprintf( '%s/echoResponses/%s?showAccounts=true', $URL_BASE, $id ), "requested URI is good" );
+    is( $item->f('request_content'), '', "requested content is empty" );
+
 };
 
 subtest 'non resource responding' => sub {
