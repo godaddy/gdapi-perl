@@ -103,7 +103,14 @@ sub query {
 sub query_complex {
     my $self = shift;
 
-    my $url = build_complex_query_url( $self->query_url, @_ );
+    my $id = delete $_[0]->{'id'};
+    my $url;
+    if ( defined $id ) {
+        $url = build_complex_query_url( $self->query_url($id), @_ );
+    }
+    else {
+        $url = build_complex_query_url( $self->query_url, @_ );
+    }
 
     my $resource = $self->client->http_request_as_resource( 'GET', $url );
 
