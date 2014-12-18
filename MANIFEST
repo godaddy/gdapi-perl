@@ -27,3 +27,4 @@ t/pod_coverage.t
 t/resource.t
 t/schema.json
 t/util.t
+META.json

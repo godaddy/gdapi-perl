@@ -1,32 +1,7 @@
 ---
-name: WWW-GoDaddy-REST
-version: 0.7
+abstract: 'Use REST webservices that conform to the GDAPI specification'
 author:
   - 'David Bartle <davidb@mediatemple.net>'
-abstract: Use REST webservices that conform to the GDAPI specification
-license: mit
-resources:
-  bugtracker: https://github.com/godaddy/gdapi-perl/issues
-  homepage: https://github.com/godaddy/gdapi-perl
-  license: http://opensource.org/licenses/MIT
-  repository: https://github.com/godaddy/gdapi-perl.git
-requires:
-  Carp: 0
-  Config::Any: 0
-  File::Slurp: 0
-  Getopt::Long: 0
-  HTTP::Request: 0
-  JSON: 0
-  LWP::UserAgent: 0
-  List::MoreUtils: 0
-  List::Util: 0
-  Moose: 0
-  Pod::Usage: 0
-  Term::Shell: 0
-  Text::FormatTable: 0
-  Text::Wrap: 0
-  URI: 0
-  URI::QueryParam: 0
 build_requires:
   Carp: 0
   File::Slurp: 0
@@ -36,15 +11,19 @@ build_requires:
   Test::Exception: 0
   Test::MockObject: 0
   Test::More: 0
-recommends:
-  Config::Tiny: 0
-  GraphViz: 0
-  LWP::Protocol::https: 0
-  YAML::XS: 0
+configure_requires:
+  Module::Build: 0.40
+dynamic_config: 1
+generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.133380'
+license: mit
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: WWW-GoDaddy-REST
 provides:
   WWW::GoDaddy::REST:
     file: lib/WWW/GoDaddy/REST.pm
-    version: 0.7
+    version: 0.8
   WWW::GoDaddy::REST::Collection:
     file: lib/WWW/GoDaddy/REST/Collection.pm
   WWW::GoDaddy::REST::Resource:
@@ -67,7 +46,31 @@ provides:
     file: lib/WWW/GoDaddy/REST/Shell/Util.pm
   WWW::GoDaddy::REST::Util:
     file: lib/WWW/GoDaddy/REST/Util.pm
-generated_by: Module::Build version 0.280801
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+recommends:
+  Config::Tiny: 0
+  GraphViz: 0
+  LWP::Protocol::https: 0
+  YAML::XS: 0
+requires:
+  Carp: 0
+  Config::Any: 0
+  File::Slurp: 0
+  Getopt::Long: 0
+  HTTP::Request: 0
+  JSON: 0
+  LWP::UserAgent: 0
+  List::MoreUtils: 0
+  List::Util: 0
+  Moose: 0
+  Pod::Usage: 0
+  Term::Shell: 0
+  Text::FormatTable: 0
+  Text::Wrap: 0
+  URI: 0
+  URI::QueryParam: 0
+resources:
+  bugtracker: https://github.com/godaddy/gdapi-perl/issues
+  homepage: https://github.com/godaddy/gdapi-perl
+  license: http://opensource.org/licenses/MIT
+  repository: https://github.com/godaddy/gdapi-perl.git
+version: 0.8

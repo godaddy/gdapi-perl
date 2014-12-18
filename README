@@ -29,14 +29,14 @@ SYNOPSIS
 DESCRIPTION
     This client makes it easy to code against a REST API that is created
     using the Go Daddy (r) API Specification (GDAPI)
-    <https://github.com/godaddy/gdapi>.
+    https://github.com/godaddy/gdapi.
 
     You will typically only need three pieces of information: - base url of
     the api (this must include the version number) - username - password
 
 SEARCHING AND FILTERS
-    There are two methods that deal with searching: "query" and
-    "query_by_id".
+    There are two methods that deal with searching: `query' and
+    `query_by_id'.
 
   SEARCH BY ID
     Example:
@@ -88,7 +88,7 @@ SEARCHING AND FILTERS
       );
 
 ATTRIBUTES
-    Attributes can be provided in the "new" method and have corresponding
+    Attributes can be provided in the `new' method and have corresponding
     methods to get/set the values.
 
     url Base URL for the web service. This must include the version portion
@@ -114,7 +114,7 @@ ATTRIBUTES
                } );
 
         NOTE: not all web services authenticate using HTTP Basic Auth. In
-        this case, you will need to provide your own "user_agent" with
+        this case, you will need to provide your own `user_agent' with
         default headers to accomplish authentication on your own.
 
     basic_password
@@ -129,7 +129,7 @@ ATTRIBUTES
                } );
 
         NOTE: not all web services authenticate using HTTP Basic Auth. In
-        this case, you will need to provide your own "user_agent" with
+        this case, you will need to provide your own `user_agent' with
         default headers to accomplish authentication on your own.
 
     user_agent
@@ -141,7 +141,7 @@ ATTRIBUTES
         You may override this if you wish in the constructor or later on at
         runtime.
 
-        See the "default_user_agent" in "CLASS METHODS".
+        See the `default_user_agent' in "CLASS METHODS".
 
         Example:
 
@@ -169,10 +169,10 @@ ATTRIBUTES
 
         See the GDAPI Specification for more information about schemas and
         collections.
-        <https://github.com/godaddy/gdapi/blob/master/specification.md>
+        https://github.com/godaddy/gdapi/blob/master/specification.md
 
     raise_http_errors
-        Boolean value that indicates whether a "die()" will occur in the
+        Boolean value that indicates whether a `die()' will occur in the
         event of a non successful HTTP response (4xx 5xx etc).
 
         It defaults to True. Set to a false value if you wish to check the
@@ -244,9 +244,9 @@ METHODS
 
         This takes the following parameters (similar but not the same as
         HTTP::Request): - HTTP method - URL relative to the web service base
-        "url" - Optional hashref of data to send as JSON content
+        `url' - Optional hashref of data to send as JSON content
 
-        The url provided will be rooted to the base url, "url".
+        The url provided will be rooted to the base url, `url'.
 
         Example:
 
@@ -265,11 +265,11 @@ METHODS
 
         This takes the following parameters (similar but not the same as
         HTTP::Request): - HTTP method - URL relative to the web service base
-        "url" - Optional hashref of data to send as JSON content
+        `url' - Optional hashref of data to send as JSON content
 
-        The url provided will be rooted to the base url, "url".
+        The url provided will be rooted to the base url, `url'.
 
-        The url provided will be rooted to the base url, "url".
+        The url provided will be rooted to the base url, `url'.
 
         Example:
 
@@ -301,7 +301,7 @@ METHODS
 
          - HTTP basic auth headers if auth is provided
 
-        Unlike other methods such as "http_request", the "url" is not rooted
+        Unlike other methods such as `http_request', the `url' is not rooted
         to the base url.
 
         Example:
@@ -314,7 +314,7 @@ METHODS
 
 CLASS METHODS
     default_user_agent
-        Generate a default LWP::UserAgent. See "user_agent".
+        Generate a default LWP::UserAgent. See `user_agent'.
 
         Example:
 
@@ -326,10 +326,10 @@ CLASS METHODS
           });
 
 SEE ALSO
-    "gdapi-shell" command line program.
+    `gdapi-shell' command line program.
 
 AUTHOR
-    David Bartle, "<davidb@mediatemple.net>"
+    David Bartle, `<davidb@mediatemple.net>'
 
 COPYRIGHT & LICENSE
     Copyright (c) 2014 Go Daddy Operating Company, LLC
