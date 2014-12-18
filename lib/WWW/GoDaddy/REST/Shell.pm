@@ -42,6 +42,10 @@ sub init {
         foreach (qw/ url username password /) {
             $options{$_} ||= $config->{$conf_file}->{$_};
         }
+
+        # some config files specify the opts like this
+        $options{password} ||= $config->{$conf_file}->{basic_password};
+        $options{username} ||= $config->{$conf_file}->{basic_username};
     }
 
     if ( $options{username} or $options{password} ) {
