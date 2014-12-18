@@ -285,7 +285,11 @@ There are two methods that deal with searching: C<query> and C<query_by_id>.
 
 Example:
 
-  $resource = $client->query_by_id('schema_name','id');
+  # GET /v1/how_the_schema_defines/the_resource/url/id
+  $resource = $client->query_by_id('the_schema','the_id');
+
+  # GET /v1/how_the_schema_defines/the_resource/url/id?other=param
+  $resource = $client->query_by_id('the_schema','the_id', { other => 'param' });
 
 =head2 SEARCH WITH FILTER
 
@@ -331,6 +335,10 @@ Assumed Equality Example:
         'another_field' => 'equality search too'
     }
   );
+
+Pass Through to query_by_id VS Search
+
+  $resource = $client->query( 'the_schema_name', 'id' );
 
 =head1 ATTRIBUTES
 
@@ -439,11 +447,17 @@ the HTTP response code in the resultant resource on your own.
 
 Search for a list of resources given a schema name and a filter.
 
-In scalar context, this returns a L<WWW::GoDaddy::REST::Collection>
+If the second parameter is a scalar, is assumes you are not searching but rather
+trying to load a specific resource.
+
+See the documentation for C<query_by_id>.
+
+In scalar context, this returns a L<Collection|WWW::GoDaddy::REST::Collection>
 object.
 
-In list context, this returns a list of L<WWW::GoDaddy::REST::Resource>
+In list context, this returns a list of L<Resource|WWW::GoDaddy::REST::Resource>
 objects (or subclasses).
+
 
 Example:
 
@@ -454,13 +468,18 @@ See L<"SEARCHING AND FILTERS"> for more information.
 
 =item query_by_id
 
-Search for a single instance of a resource by its primary id.
+Search for a single instance of a resource by its primary id.  Optionally
+specify a hash for additional query params to append to the resource URL.
 
-This returns a L<WWW::GoDaddy::REST::Resource> (or a subclass).
+This returns a L<Resource|WWW::GoDaddy::REST::Resource> (or a subclass).
 
 Example:
 
+  # GET /v1/how_the_schema_defines/the_resource/url/the_id
   $resource = $client->query_by_id('the_schema','the_id');
+
+  # GET /v1/how_the_schema_defines/the_resource/url/the_id?other=param
+  $resource = $client->query_by_id('the_schema','the_id', { other => 'param' });
 
 =item create
 
