@@ -1,5 +1,11 @@
 WWW::GoDaddy::REST history
 
+Release 0.8.0 - 17th December 2014
+ - fix query url when querying resources with an 'id' search filter
+   that also need extra url parameters
+ - gdapi-shell now accepts the 'basic_username' and 'basic_password'
+   keys in config files
+
 Release 0.7.0 - 9th July 2014
  - fix collection search to return appropriate resource objects
 
