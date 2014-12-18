@@ -208,8 +208,48 @@ It is a sub class of L<WWW::GoDaddy::REST::Resource>.
 
 =head1 METHODS
 
-TODO: You'll have to read code to understand the methods listed here for
-now.  See L<WWW::GoDaddy::REST::Resource> for at least some of this.
+=over 4
+
+=item query
+
+This is a helper method that, based on the parameters
+will choose to call C<query_by_id> or C<query_complex>.
+
+You probably should not be calling this directly.
+
+See the C<query> method on L<WWW::GoDaddy::REST|WWW::GoDaddy::REST>.
+
+Example:
+
+  $schema->query('1234'); # query_by_id('1234')
+  $schema->query('1234', { opt => '1' } ); # query_by_id('1234', { opt => '1' } )
+
+=item query_by_id
+
+Returns a L<Resource|WWW::GoDaddy::REST::Resource> given
+an C<id> parameter and an optional hash reference with additional key value pairs.
+
+You probably should not be calling this directly.
+
+See the C<query> method on the L<client instance|WWW::GoDaddy::REST>.
+
+Example:
+
+  $resource = $schema->query_by_id('1234');
+  $resource = $schema->query_by_id('1234', { opt => '1' } );
+
+=item query_complex
+
+Search against the collection defined by this resource.
+
+Returns a L<Collection|WWW::GoDaddy::REST::Collection> given a hash ref with
+key value pairs.
+
+Example:
+
+  $resource = $schema->query_complex( { opt => '1' } );
+
+=back
 
 =head1 AUTHOR
 
