@@ -97,9 +97,15 @@ my $client = WWW::GoDaddy::REST->new(
 
 subtest 'query_by_id' => sub {
     my $response = $client->query_by_id( 'echoResponse', '1234' );
-    is( $response->f('request_method'), "GET", "requested method is good" );
-    is( $response->f('request_uri'), "$URL_BASE/echoResponses/1234", "requested URI is good" );
-    is( $response->f('request_content'), '', "requested content is empty" );
+    is( $response->f('request_method'), "GET", "id only: requested method is good" );
+    is( $response->f('request_uri'), "$URL_BASE/echoResponses/1234", "id only: requested URI is good" );
+    is( $response->f('request_content'), '', "id only: requested content is empty" );
+
+    $response = $client->query_by_id( 'echoResponse', '1234', { showAccounts => 'true' } );
+    is( $response->f('request_method'), "GET", "complex: requested method is good" );
+    is( $response->f('request_uri'), "$URL_BASE/echoResponses/1234?showAccounts=true", "complex: requested URI is good" );
+    is( $response->f('request_content'), '', "complex: requested content is empty" );
+
 };
 
 subtest 'query' => sub {
@@ -114,9 +120,19 @@ subtest 'query' => sub {
     my @items = $client->query( 'echoResponse', { 'name' => 'bar' } );
     ($item) = @items;
     is( $item->type,                'echoResponse', 'correct item type returned' );
-    is( $item->f('request_method'), "GET",          "requested method is good" );
-    is( $item->f('request_uri'), "$URL_BASE/echoResponses?name=bar", "requested URI is good" );
-    is( $item->f('request_content'), '', "requested content is empty" );
+    is( $item->f('request_method'), "GET",          "complex: requested method is good" );
+    is( $item->f('request_uri'), "$URL_BASE/echoResponses?name=bar", "complex: requested URI is good" );
+    is( $item->f('request_content'), '', "complex: requested content is empty" );
+
+    $item = $client->query( 'echoResponse', '1234' );
+    is( $item->f('request_method'), "GET", "id only: requested method is good" );
+    is( $item->f('request_uri'), "$URL_BASE/echoResponses/1234", "id only: requested URI is good" );
+    is( $item->f('request_content'), '', "id only: requested content is empty" );
+
+    $item = $client->query( 'echoResponse', '1234', { showAccounts => 'true' } );
+    is( $item->f('request_method'), "GET", "id + extra: requested method is good" );
+    is( $item->f('request_uri'), "$URL_BASE/echoResponses/1234?showAccounts=true", "id + extra: requested URI is good" );
+    is( $item->f('request_content'), '', "id + extra: requested content is empty" );
 
     my $id = '123';
     @items = $client->query(
@@ -128,10 +144,10 @@ subtest 'query' => sub {
         }
     );
     ($item) = @items;
-    is( $item->type,                'echoResponse', 'correct item type returned' );
-    is( $item->f('request_method'), "GET",          "requested method is good" );
-    is( $item->f('request_uri'), sprintf( '%s/echoResponses/%s?showAccounts=true', $URL_BASE, $id ), "requested URI is good" );
-    is( $item->f('request_content'), '', "requested content is empty" );
+    is( $item->type,                'echoResponse', 'complex 2: correct item type returned' );
+    is( $item->f('request_method'), "GET",          "complex 2: requested method is good" );
+    is( $item->f('request_uri'), sprintf( '%s/echoResponses?id=123&showAccounts=true', $URL_BASE, $id ), "complex 2: requested URI is good" );
+    is( $item->f('request_content'), '', "complex 2: requested content is empty" );
 
 };
 

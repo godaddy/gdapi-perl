@@ -91,7 +91,7 @@ sub resource_field_type {
 sub query {
     my $self = shift;
 
-    if ( @_ == 1 && !ref( $_[0] ) ) {
+    if ( !ref( $_[0] ) ) {
         return $self->query_by_id(@_);
     }
     else {
@@ -103,14 +103,7 @@ sub query {
 sub query_complex {
     my $self = shift;
 
-    my $id = delete $_[0]->{'id'};
-    my $url;
-    if ( defined $id ) {
-        $url = build_complex_query_url( $self->query_url($id), @_ );
-    }
-    else {
-        $url = build_complex_query_url( $self->query_url, @_ );
-    }
+    my $url = build_complex_query_url( $self->query_url, @_ );
 
     my $resource = $self->client->http_request_as_resource( 'GET', $url );
 
@@ -120,9 +113,10 @@ sub query_complex {
 sub query_by_id {
     my $self = shift;
     my $id   = shift;
+    my $opts = shift || {};
 
     my $client = $self->client;
-    my $url    = $self->query_url($id);
+    my $url    = build_complex_query_url( $self->query_url($id), $opts );
 
     return $client->http_request_as_resource( 'GET', $url );
 }
