@@ -7,6 +7,7 @@ use Carp qw/cluck/;
 
 use File::Slurp qw(slurp);
 use FindBin;
+use Test::MockObject::Extends;
 use Test::More;
 use Test::Exception;
 use WWW::GoDaddy::REST;
@@ -110,6 +111,19 @@ subtest 'register_implementation' => sub {
 
     dies_ok { WWW::GoDaddy::REST::Resource->register_implementation( 1, 2, 3 ) }
     'odd number of elements dies';
+};
+
+subtest 'to_string' => sub {
+
+    my $r = Test::MockObject::Extends->new(
+        WWW::GoDaddy::REST::Resource->new( { fields => $schema_struct, client => $c } )
+    );
+    $r->mock('fields' => sub {
+        return undef;
+    });
+    lives_ok { $r->to_string } 'fields undef emulation - should live';
+    $r->unmock('fields');
+    lives_ok { $r->to_string } 'fields defined emulation - should live';
 };
 
 done_testing();

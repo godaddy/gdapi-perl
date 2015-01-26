@@ -1,5 +1,8 @@
 WWW::GoDaddy::REST history
 
+Release 0.9.0 - 26th January 2015
+ - to_string bug fix found when using Devel::Cover
+
 Release 0.8.0 - 17th December 2014
  - fix query url when querying resources with an 'id' search filter
    that also need extra url parameters

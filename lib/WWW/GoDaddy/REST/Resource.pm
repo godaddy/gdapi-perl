@@ -283,7 +283,7 @@ sub TO_JSON {
 sub data {
     my $self = shift;
 
-    my %fields = %{ $self->fields };
+    my %fields = %{ $self->fields || {} };
     if (%fields) {
         return \%fields;
     }
