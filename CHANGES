@@ -1,6 +1,6 @@
 WWW::GoDaddy::REST history
 
-Release 0.10.0 - 11th February 2015
+Release 1.00 - 11th February 2015
  - global timeout on client - default to 10 seconds
  - http related methods also have a per call timeout 
    parameter to override the global.  see docs for
