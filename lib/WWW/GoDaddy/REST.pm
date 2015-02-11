@@ -4,7 +4,7 @@ use warnings;
 use strict;
 
 #<<<  NO perltidy - must be all on one line
-use version; our $VERSION = version->new('0.10');
+use version; our $VERSION = version->new('1.00');
 #>>>
 use Carp qw(confess);
 use English qw( -no_match_vars );
@@ -277,8 +277,9 @@ WWW::GoDaddy::REST - Work with services conforming to the GDAPI spec
 
  my $client = WWW::GoDaddy::REST->new({
    url => 'https://example.com/v1',
-   basic_username => 'theuser',
-   basic_password => 'notsosecret'
+   basic_username => 'theuser',     # optional
+   basic_password => 'notsosecret', # optional
+   timeout => 15,                   # optional - default 10 seconds
  });
 
  # see docs for WWW::GoDaddy::REST::Resource for more info

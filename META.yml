@@ -24,7 +24,7 @@ name: WWW-GoDaddy-REST
 provides:
   WWW::GoDaddy::REST:
     file: lib/WWW/GoDaddy/REST.pm
-    version: 0.10
+    version: 1.00
   WWW::GoDaddy::REST::Collection:
     file: lib/WWW/GoDaddy/REST/Collection.pm
   WWW::GoDaddy::REST::Resource:
@@ -74,4 +74,4 @@ resources:
   homepage: https://github.com/godaddy/gdapi-perl
   license: http://opensource.org/licenses/MIT
   repository: https://github.com/godaddy/gdapi-perl.git
-version: 0.10
+version: 1.00
