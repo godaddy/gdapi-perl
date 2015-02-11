@@ -223,6 +223,34 @@
       ]
     },
     {
+      "id": "slowResponse",
+      "type": "schema",
+      "links": {
+        "self": "http://example.com/v1/schemas/slowResponse",
+        "schemas": "http://example.com/v1/schemas",
+        "collection": "http://example.com/v1/slowResponses"
+      },
+      "collectionActions": {},
+      "collectionFields": {},
+      "collectionFilters": {},
+      "collectionMethods": [ "GET" ],
+      "resourceActions": {},
+      "resourceFields": {
+        "request_method": {
+          "type": "string"
+        },
+        "request_uri": {
+          "type": "string"
+        },
+        "request_content": {
+          "type": "string"
+        }
+      },
+      "resourceMethods": [
+        "GET"
+      ]
+    },
+    {
       "id": "echoResponse",
       "type": "schema",
       "links": {

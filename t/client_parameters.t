@@ -24,6 +24,16 @@ subtest 'url' => sub {
     lives_ok { my $client = WWW::GoDaddy::REST->new( { url => $URL_BASE } ) } 'url - provided';
 };
 
+subtest 'timeout' => sub {
+    my $client = WWW::GoDaddy::REST->new( url => $URL_BASE );
+    is( $client->timeout, 10, 'default timeout is set' );
+    $client->timeout(20);
+    is( $client->timeout, 20, 'timeout can be set' );
+    throws_ok { $client->timeout(-1); } qr/Attribute \(timeout\) does not pass/, 'timeout must be > 0';
+
+    throws_ok { my $client => WWW::GoDaddy::REST->new( url => $URL_BASE, timeout => 0 ) } qr/Attribute \(timeout\) does not pass/, 'timeout must be > 0';
+};
+
 subtest 'user_agent' => sub {
     my $ua_custom = LWP::UserAgent->new( agent => 'testing and should match' );
     my $client = WWW::GoDaddy::REST->new( { url => $URL_BASE } );

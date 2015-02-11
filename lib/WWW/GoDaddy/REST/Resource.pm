@@ -30,19 +30,22 @@ has 'http_response' => (
 
 sub save {
     my $self = shift;
+    my $http_opts = shift;
     my $url = $self->link('self') || $self->client->schema( $self->type )->query_url( $self->id );
-    return $self->client->http_request_as_resource( 'PUT', $url, $self );
+    return $self->client->http_request_as_resource( 'PUT', $url, $self, $http_opts );
 }
 
 sub delete {
     my $self = shift;
+    my $http_opts = shift;
     my $url = $self->link('self') || $self->client->schema( $self->type )->query_url( $self->id );
-    return $self->client->http_request_as_resource( 'DELETE', $url, $self );
+    return $self->client->http_request_as_resource( 'DELETE', $url, $self, $http_opts );
 }
 
 sub follow_link {
     my $self      = shift;
     my $link_name = shift;
+    my $http_opts = shift;
 
     my $link_url = $self->link($link_name);
     if ( !$link_url ) {
@@ -50,13 +53,14 @@ sub follow_link {
         croak("$link_name is not a valid link name. Did you mean one of these? @valid_links");
     }
 
-    return $self->client->http_request_as_resource( 'GET', $link_url );
+    return $self->client->http_request_as_resource( 'GET', $link_url, undef, $http_opts );
 }
 
 sub do_action {
-    my $self   = shift;
-    my $action = shift;
-    my $params = shift;
+    my $self      = shift;
+    my $action    = shift;
+    my $params    = shift;
+    my $http_opts = shift;
 
     my $action_url = $self->action($action);
     if ( !$action_url ) {
@@ -75,7 +79,7 @@ sub do_action {
         }
     }
 
-    return $self->client->http_request_as_resource( 'POST', $action_url, $params );
+    return $self->client->http_request_as_resource( 'POST', $action_url, $params, $http_opts );
 
 }
 

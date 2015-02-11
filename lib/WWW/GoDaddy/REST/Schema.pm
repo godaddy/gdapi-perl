@@ -103,23 +103,52 @@ sub query {
 sub query_complex {
     my $self = shift;
 
-    my $url = build_complex_query_url( $self->query_url, @_ );
+    my ($query_params,$http_opts) = _separate_query_and_http_params(@_);
 
-    my $resource = $self->client->http_request_as_resource( 'GET', $url );
+    my $url = build_complex_query_url( $self->query_url, @{$query_params} );
+
+    my $resource = $self->client->http_request_as_resource( 'GET', $url, undef, $http_opts );
 
     return wantarray ? $resource->items() : $resource;
 }
 
 sub query_by_id {
-    my $self = shift;
-    my $id   = shift;
-    my $opts = shift || {};
+    my $self      = shift;
+    my $id        = shift;
+    my $opts      = shift || {};
+    my $http_opts = shift || {};
 
     my $client = $self->client;
     my $url    = build_complex_query_url( $self->query_url($id), $opts );
 
-    return $client->http_request_as_resource( 'GET', $url );
+    return $client->http_request_as_resource( 'GET', $url, undef, $http_opts );
 }
+
+sub _separate_query_and_http_params {
+    my @all = @_;
+
+    if( !@all ) {
+        return ();
+    }
+
+    my ($query_opts,$http_opts);
+
+    if( @all && _looks_like_http_options($all[-1]) ) {
+        $http_opts  = pop @all;
+        $query_opts = \@all;
+    }
+    else {
+        $http_opts  = undef;
+        $query_opts = \@all;
+    }
+    return ( $query_opts, $http_opts );
+}
+
+sub _looks_like_http_options {
+    my $item = shift;
+    return ref($item) eq 'HASH' && exists $item->{timeout};
+}
+
 
 sub create {
     my $self = shift;

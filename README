@@ -41,7 +41,11 @@ SEARCHING AND FILTERS
   SEARCH BY ID
     Example:
 
-      $resource = $client->query_by_id('schema_name','id');
+      # GET /v1/how_the_schema_defines/the_resource/url/id
+      $resource = $client->query_by_id('the_schema','the_id');
+
+      # GET /v1/how_the_schema_defines/the_resource/url/id?other=param
+      $resource = $client->query_by_id('the_schema','the_id', { other => 'param' });
 
   SEARCH WITH FILTER
     Filters are hash references. The first level key is the field name that
@@ -86,6 +90,10 @@ SEARCHING AND FILTERS
             'another_field' => 'equality search too'
         }
       );
+
+    Pass Through to query_by_id VS Search
+
+      $resource = $client->query( 'the_schema_name', 'id' );
 
 ATTRIBUTES
     Attributes can be provided in the `new' method and have corresponding
@@ -182,27 +190,42 @@ METHODS
     query
         Search for a list of resources given a schema name and a filter.
 
-        In scalar context, this returns a WWW::GoDaddy::REST::Collection
-        object.
+        If the second parameter is a scalar, is assumes you are not
+        searching but rather trying to load a specific resource.
 
-        In list context, this returns a list of WWW::GoDaddy::REST::Resource
-        objects (or subclasses).
+        See the documentation for `query_by_id'.
+
+        In scalar context, this returns a Collection object.
+
+        In list context, this returns a list of Resource objects (or
+        subclasses).
 
         Example:
 
           @items      = $client->query('schema_name',{ 'field' => 'value' });
           $collection = $client->query('schema_name',{ 'field' => 'value' });
+          $item       = $client->query('schema_name','1234');
+          $item       = $client->query('schema_name','1234',{ 'field' => 'value' });
+          $item       = $client->query('schema_name','1234',undef,{ timeout => 15 });
 
         See "SEARCHING AND FILTERS" for more information.
 
     query_by_id
         Search for a single instance of a resource by its primary id.
+        Optionally specify a hash for additional query params to append to
+        the resource URL.
 
-        This returns a WWW::GoDaddy::REST::Resource (or a subclass).
+        This returns a Resource (or a subclass).
 
         Example:
 
+          # GET /v1/how_the_schema_defines/the_resource/url/the_id
           $resource = $client->query_by_id('the_schema','the_id');
+          $resource = $client->query_by_id('the_schema','the_id',undef,{ timeout => 15 });
+
+          # GET /v1/how_the_schema_defines/the_resource/url/the_id?other=param
+          $resource = $client->query_by_id('the_schema','the_id', { other => 'param' });
+          $resource = $client->query_by_id('the_schema','the_id', { other => 'param' }, { timeout => 15 });
 
     create
         Given a schema and a resource (or hashref), a POST will be made
@@ -213,6 +236,7 @@ METHODS
         Example:
 
            $car = $client->create('autos', { 'make' => 'Tesla', 'model' => 'S' });
+           $car = $client->create('autos', { 'make' => 'Tesla', 'model' => 'S' }, { timeout => 30 });
 
     schema
         Given a schema name, return a WWW::GoDaddy::REST::Schema object or

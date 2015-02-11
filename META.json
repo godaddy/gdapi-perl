@@ -23,6 +23,7 @@
             "LWP::UserAgent" : "0",
             "Test::Exception" : "0",
             "Test::MockObject" : "0",
+            "Test::MockObject::Extends" : "0",
             "Test::More" : "0"
          }
       },
@@ -61,7 +62,7 @@
    "provides" : {
       "WWW::GoDaddy::REST" : {
          "file" : "lib/WWW/GoDaddy/REST.pm",
-         "version" : "0.8"
+         "version" : "0.10"
       },
       "WWW::GoDaddy::REST::Collection" : {
          "file" : "lib/WWW/GoDaddy/REST/Collection.pm"
@@ -110,5 +111,5 @@
          "url" : "https://github.com/godaddy/gdapi-perl.git"
       }
    },
-   "version" : "0.8"
+   "version" : "0.10"
 }

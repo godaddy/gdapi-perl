@@ -10,6 +10,7 @@ build_requires:
   LWP::UserAgent: 0
   Test::Exception: 0
   Test::MockObject: 0
+  Test::MockObject::Extends: 0
   Test::More: 0
 configure_requires:
   Module::Build: 0.40
@@ -23,7 +24,7 @@ name: WWW-GoDaddy-REST
 provides:
   WWW::GoDaddy::REST:
     file: lib/WWW/GoDaddy/REST.pm
-    version: 0.8
+    version: 0.10
   WWW::GoDaddy::REST::Collection:
     file: lib/WWW/GoDaddy/REST/Collection.pm
   WWW::GoDaddy::REST::Resource:
@@ -73,4 +74,4 @@ resources:
   homepage: https://github.com/godaddy/gdapi-perl
   license: http://opensource.org/licenses/MIT
   repository: https://github.com/godaddy/gdapi-perl.git
-version: 0.8
+version: 0.10

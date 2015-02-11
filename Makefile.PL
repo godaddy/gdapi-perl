@@ -2,34 +2,35 @@
 use ExtUtils::MakeMaker;
 WriteMakefile
 (
-  'VERSION_FROM' => 'lib/WWW/GoDaddy/REST.pm',
-  'NAME' => 'WWW::GoDaddy::REST',
-  'PREREQ_PM' => {
-                   'Test::More' => 0,
-                   'URI' => 0,
-                   'Moose' => 0,
-                   'File::Slurp' => 0,
-                   'Text::Wrap' => 0,
-                   'Text::FormatTable' => 0,
-                   'JSON' => 0,
-                   'Config::Any' => 0,
-                   'LWP::UserAgent' => 0,
-                   'HTTP::Request' => 0,
-                   'Term::Shell' => 0,
-                   'List::Util' => 0,
-                   'Carp' => 0,
-                   'Test::Exception' => 0,
-                   'URI::QueryParam' => 0,
-                   'FindBin' => 0,
-                   'Getopt::Long' => 0,
-                   'Test::MockObject' => 0,
-                   'Pod::Usage' => 0,
-                   'List::MoreUtils' => 0
-                 },
-  'PL_FILES' => {},
   'EXE_FILES' => [
                    'script/gdapi-shell'
                  ],
-  'INSTALLDIRS' => 'site'
+  'PL_FILES' => {},
+  'PREREQ_PM' => {
+                   'URI::QueryParam' => 0,
+                   'Test::MockObject' => 0,
+                   'HTTP::Request' => 0,
+                   'Pod::Usage' => 0,
+                   'Moose' => 0,
+                   'JSON' => 0,
+                   'Carp' => 0,
+                   'File::Slurp' => 0,
+                   'Config::Any' => 0,
+                   'Test::MockObject::Extends' => 0,
+                   'Term::Shell' => 0,
+                   'Getopt::Long' => 0,
+                   'Test::More' => 0,
+                   'Test::Exception' => 0,
+                   'Text::Wrap' => 0,
+                   'FindBin' => 0,
+                   'URI' => 0,
+                   'LWP::UserAgent' => 0,
+                   'List::MoreUtils' => 0,
+                   'List::Util' => 0,
+                   'Text::FormatTable' => 0
+                 },
+  'INSTALLDIRS' => 'site',
+  'VERSION_FROM' => 'lib/WWW/GoDaddy/REST.pm',
+  'NAME' => 'WWW::GoDaddy::REST'
 )
 ;

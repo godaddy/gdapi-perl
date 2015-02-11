@@ -4,7 +4,7 @@ use warnings;
 use strict;
 
 #<<<  NO perltidy - must be all on one line
-use version; our $VERSION = version->new('0.9');
+use version; our $VERSION = version->new('0.10');
 #>>>
 use Carp qw(confess);
 use English qw( -no_match_vars );
@@ -12,9 +12,16 @@ use File::Slurp qw( slurp );
 use LWP::UserAgent;
 use HTTP::Request;
 use Moose;
+use Moose::Util::TypeConstraints;
 use WWW::GoDaddy::REST::Resource;
 use WWW::GoDaddy::REST::Schema;
 use WWW::GoDaddy::REST::Util qw(abs_url json_encode json_decode is_json );
+
+subtype 'PositiveInt',
+    as 'Int',
+    where { $_ > 0 };
+
+no Moose::Util::TypeConstraints;
 
 my $JSON_MIME_TYPE = 'application/json';
 
@@ -23,6 +30,14 @@ has 'url' => (
     isa           => 'Str',
     required      => 1,
     documentation => 'Base url of the REST service'
+);
+
+has 'timeout' => (
+    is            => 'rw',
+    isa           => 'PositiveInt',
+    required      => 1,
+    default       => 10,
+    documentation => 'Timeout in seconds for HTTP calls'
 );
 
 has 'basic_username' => (
@@ -135,8 +150,8 @@ sub http_request_schemas_json {
 }
 
 sub http_request_as_resource {
-    my ( $self, $method, $url, $content ) = @_;
-    my ( $struct_from_json, $http_response ) = $self->http_request( $method, $url, $content );
+    my ( $self, $method, $url, $content, $http_opts ) = @_;
+    my ( $struct_from_json, $http_response ) = $self->http_request( $method, $url, $content, $http_opts );
 
     my $resource = WWW::GoDaddy::REST::Resource->new_subclassed(
         {   client        => $self,
@@ -159,7 +174,10 @@ sub http_request_as_resource {
 
 sub http_request {
     my $self = shift;
-    my ( $method, $uri, $perl_data ) = @_;
+    my ( $method, $uri, $perl_data, $http_opts ) = @_;
+
+    $http_opts            ||= {};
+    $http_opts->{timeout} ||= $self->timeout;
 
     $uri = abs_url( $self->url, $uri );
 
@@ -176,7 +194,20 @@ sub http_request {
 
     my $request = $self->build_http_request( $method, $uri, $headers, $content );
 
-    my $response      = $self->user_agent->request($request);
+    my $response      = eval {
+        local $SIG{ALRM} = sub { die("alarm\n") };
+        alarm $http_opts->{timeout};
+        return $self->user_agent->request($request);
+    };
+    alarm 0;
+    if ( my $e = $@ ) {
+        if ( $e eq "alarm\n" ) {
+            confess("timed out while calling '$method' '$uri'");
+        }
+        else {
+            confess($e);
+        }
+    }
     my $response_text = $response->content;
 
     my $content_data;
@@ -463,6 +494,9 @@ Example:
 
   @items      = $client->query('schema_name',{ 'field' => 'value' });
   $collection = $client->query('schema_name',{ 'field' => 'value' });
+  $item       = $client->query('schema_name','1234');
+  $item       = $client->query('schema_name','1234',{ 'field' => 'value' });
+  $item       = $client->query('schema_name','1234',undef,{ timeout => 15 });
 
 See L<"SEARCHING AND FILTERS"> for more information.
 
@@ -477,9 +511,11 @@ Example:
 
   # GET /v1/how_the_schema_defines/the_resource/url/the_id
   $resource = $client->query_by_id('the_schema','the_id');
+  $resource = $client->query_by_id('the_schema','the_id',undef,{ timeout => 15 });
 
   # GET /v1/how_the_schema_defines/the_resource/url/the_id?other=param
   $resource = $client->query_by_id('the_schema','the_id', { other => 'param' });
+  $resource = $client->query_by_id('the_schema','the_id', { other => 'param' }, { timeout => 15 });
 
 =item create
 
@@ -491,6 +527,7 @@ This returns a L<WWW::GoDaddy::REST::Resource> (or a subclass).
 Example:
 
    $car = $client->create('autos', { 'make' => 'Tesla', 'model' => 'S' });
+   $car = $client->create('autos', { 'make' => 'Tesla', 'model' => 'S' }, { timeout => 30 });
 
 =item schema
 

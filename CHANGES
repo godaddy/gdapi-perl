@@ -1,5 +1,11 @@
 WWW::GoDaddy::REST history
 
+Release 0.10.0 - 11th February 2015
+ - global timeout on client - default to 10 seconds
+ - http related methods also have a per call timeout 
+   parameter to override the global.  see docs for
+   save, delete, query, query_by_id, etc.
+
 Release 0.9.0 - 26th January 2015
  - to_string bug fix found when using Devel::Cover
 
