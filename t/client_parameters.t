@@ -29,9 +29,11 @@ subtest 'timeout' => sub {
     is( $client->timeout, 10, 'default timeout is set' );
     $client->timeout(20);
     is( $client->timeout, 20, 'timeout can be set' );
-    throws_ok { $client->timeout(-1); } qr/Attribute \(timeout\) does not pass/, 'timeout must be > 0';
+    throws_ok { $client->timeout(-1); } qr/Attribute \(timeout\) does not pass/,
+        'timeout must be > 0';
 
-    throws_ok { my $client => WWW::GoDaddy::REST->new( url => $URL_BASE, timeout => 0 ) } qr/Attribute \(timeout\) does not pass/, 'timeout must be > 0';
+    throws_ok { my $client => WWW::GoDaddy::REST->new( url => $URL_BASE, timeout => 0 ) }
+    qr/Attribute \(timeout\) does not pass/, 'timeout must be > 0';
 };
 
 subtest 'user_agent' => sub {

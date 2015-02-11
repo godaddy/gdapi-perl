@@ -17,9 +17,7 @@ use WWW::GoDaddy::REST::Resource;
 use WWW::GoDaddy::REST::Schema;
 use WWW::GoDaddy::REST::Util qw(abs_url json_encode json_decode is_json );
 
-subtype 'PositiveInt',
-    as 'Int',
-    where { $_ > 0 };
+subtype 'PositiveInt', as 'Int', where { $_ > 0 };
 
 no Moose::Util::TypeConstraints;
 
@@ -151,7 +149,8 @@ sub http_request_schemas_json {
 
 sub http_request_as_resource {
     my ( $self, $method, $url, $content, $http_opts ) = @_;
-    my ( $struct_from_json, $http_response ) = $self->http_request( $method, $url, $content, $http_opts );
+    my ( $struct_from_json, $http_response )
+        = $self->http_request( $method, $url, $content, $http_opts );
 
     my $resource = WWW::GoDaddy::REST::Resource->new_subclassed(
         {   client        => $self,
@@ -176,7 +175,7 @@ sub http_request {
     my $self = shift;
     my ( $method, $uri, $perl_data, $http_opts ) = @_;
 
-    $http_opts            ||= {};
+    $http_opts ||= {};
     $http_opts->{timeout} ||= $self->timeout;
 
     $uri = abs_url( $self->url, $uri );
@@ -194,7 +193,7 @@ sub http_request {
 
     my $request = $self->build_http_request( $method, $uri, $headers, $content );
 
-    my $response      = eval {
+    my $response = eval {
         local $SIG{ALRM} = sub { die("alarm\n") };
         alarm $http_opts->{timeout};
         return $self->user_agent->request($request);

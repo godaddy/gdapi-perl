@@ -67,7 +67,7 @@ sub abs_url {
     my $api_base = shift;
     my $url      = shift;
 
-    $url      =~ s|^/||;
+    $url =~ s|^/||;
     $api_base =~ s|/*$|/|;
 
     return URI->new_abs( $url, $api_base );

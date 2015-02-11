@@ -116,11 +116,12 @@ subtest 'register_implementation' => sub {
 subtest 'to_string' => sub {
 
     my $r = Test::MockObject::Extends->new(
-        WWW::GoDaddy::REST::Resource->new( { fields => $schema_struct, client => $c } )
+        WWW::GoDaddy::REST::Resource->new( { fields => $schema_struct, client => $c } ) );
+    $r->mock(
+        'fields' => sub {
+            return undef;
+        }
     );
-    $r->mock('fields' => sub {
-        return undef;
-    });
     lives_ok { $r->to_string } 'fields undef emulation - should live';
     $r->unmock('fields');
     lives_ok { $r->to_string } 'fields defined emulation - should live';

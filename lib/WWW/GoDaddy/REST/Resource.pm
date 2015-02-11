@@ -29,14 +29,14 @@ has 'http_response' => (
 );
 
 sub save {
-    my $self = shift;
+    my $self      = shift;
     my $http_opts = shift;
     my $url = $self->link('self') || $self->client->schema( $self->type )->query_url( $self->id );
     return $self->client->http_request_as_resource( 'PUT', $url, $self, $http_opts );
 }
 
 sub delete {
-    my $self = shift;
+    my $self      = shift;
     my $http_opts = shift;
     my $url = $self->link('self') || $self->client->schema( $self->type )->query_url( $self->id );
     return $self->client->http_request_as_resource( 'DELETE', $url, $self, $http_opts );
@@ -64,17 +64,18 @@ sub do_action {
 
     my $action_url = $self->action($action);
     if ( !$action_url ) {
-        if($self->id) {
+        if ( $self->id ) {
+
             # try and find an action in the schema as fallback
             my $schema = $self->schema();
             my $resource_actions = $schema->f('resourceActions') || {};
-            if( exists $resource_actions->{$action} ) {
-                my $self_uri = URI->new($self->link('self') || $schema->query_url( $self->id ));
+            if ( exists $resource_actions->{$action} ) {
+                my $self_uri = URI->new( $self->link('self') || $schema->query_url( $self->id ) );
                 $self_uri->query("$action");
                 $action_url = "$self_uri";
             }
         }
-        if( !$action_url ) {
+        if ( !$action_url ) {
             croak("$action is not a valid action name.");
         }
     }
@@ -118,7 +119,7 @@ sub resource_type_fq {
 
 sub schema {
     my $self = shift;
-    my $schema 
+    my $schema
         = $self->client->schema( $self->resource_type_fq )
         || $self->client->schema( $self->type_fq )
         || $self->client->schema( $self->type );

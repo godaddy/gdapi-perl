@@ -120,7 +120,7 @@ sub format_resource_docs {
             [   map {
                     if   ( ref($_) ) { json_encode($_) }
                     else             {$_}
-                    } values %fields
+                } values %fields
             ],
             " - ",
             1

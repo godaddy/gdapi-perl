@@ -28,9 +28,7 @@ $lwp_mock->mock(
         my $echoResponse = {
             'id'                     => 'echo',
             'type'                   => 'echoResponse',
-            'child_resource'         => {
-                'id' => 'child'
-            },
+            'child_resource'         => { 'id' => 'child' },
             'request_method'         => $request->method,
             'request_uri'            => $url,
             'request_content'        => $content_json,
@@ -45,7 +43,7 @@ $lwp_mock->mock(
         my $content;
 
         if ( $request->method eq 'DELETE' ) {
-            if( $request->uri->path =~ /slow/ ) {
+            if ( $request->uri->path =~ /slow/ ) {
                 sleep $SLOW_SPEED;
             }
             return HTTP::Response->new(204);
@@ -80,7 +78,7 @@ $lwp_mock->mock(
         }
         elsif ( $request->uri->path =~ m|^/v1/slowResponses/(.*)$| ) {
             $echoResponse->{id} = $1;
-            if( $url =~ m|die| ) {
+            if ( $url =~ m|die| ) {
                 die('internal die - not alarm');
             }
             sleep $SLOW_SPEED;
@@ -95,7 +93,7 @@ $lwp_mock->mock(
         }
 
         my $response = HTTP::Response->new(200);
-        if( $url =~ /badJson/ ) {
+        if ( $url =~ /badJson/ ) {
             $response->content('badJson');
         }
         else {
@@ -115,46 +113,88 @@ my $client = WWW::GoDaddy::REST->new(
 subtest 'query_by_id' => sub {
     my $response = $client->query_by_id( 'echoResponse', '1234' );
     is( $response->f('request_method'), "GET", "id only: requested method is good" );
-    is( $response->f('request_uri'), "$URL_BASE/echoResponses/1234", "id only: requested URI is good" );
+    is( $response->f('request_uri'),
+        "$URL_BASE/echoResponses/1234",
+        "id only: requested URI is good"
+    );
     is( $response->f('request_content'), '', "id only: requested content is empty" );
 
     $response = $client->query_by_id( 'echoResponse', '1234', { showAccounts => 'true' } );
     is( $response->f('request_method'), "GET", "complex: requested method is good" );
-    is( $response->f('request_uri'), "$URL_BASE/echoResponses/1234?showAccounts=true", "complex: requested URI is good" );
+    is( $response->f('request_uri'),
+        "$URL_BASE/echoResponses/1234?showAccounts=true",
+        "complex: requested URI is good"
+    );
     is( $response->f('request_content'), '', "complex: requested content is empty" );
 
-    my $timeout_sooner = $SLOW_SPEED-2;
-    my $timeout_later  = $SLOW_SPEED+2;
+    my $timeout_sooner = $SLOW_SPEED - 2;
+    my $timeout_later  = $SLOW_SPEED + 2;
 
     $client->timeout($timeout_sooner);
-    throws_ok { $client->query_by_id( 'slowResponse', '12345' ) } qr/timed out while calling 'GET' 'http:\/\/example.com\/v1\/slowResponses\/12345'/, 'query was slow: and over timeout - die';
+    throws_ok { $client->query_by_id( 'slowResponse', '12345' ) }
+    qr/timed out while calling 'GET' 'http:\/\/example.com\/v1\/slowResponses\/12345'/,
+        'query was slow: and over timeout - die';
 
     $client->timeout($timeout_later);
-    lives_ok { $response = $client->query_by_id( 'slowResponse', '12345' ) } 'query was slow: but below timeout - live';
-    is( $response->f('request_method'), "GET", "query was slow: timeout global: requested method is good" );
-    is( $response->f('request_uri'), "$URL_BASE/slowResponses/12345", "query was slow: timeout global: requested URI is good" );
-    is( $response->f('request_content'), '', "query was slow: timeout global: requested content is empty" );
+    lives_ok { $response = $client->query_by_id( 'slowResponse', '12345' ) }
+    'query was slow: but below timeout - live';
+    is( $response->f('request_method'),
+        "GET", "query was slow: timeout global: requested method is good" );
+    is( $response->f('request_uri'),
+        "$URL_BASE/slowResponses/12345",
+        "query was slow: timeout global: requested URI is good"
+    );
+    is( $response->f('request_content'),
+        '', "query was slow: timeout global: requested content is empty" );
 
     $client->timeout($timeout_sooner);
-    lives_ok { $response = $client->query_by_id( 'slowResponse', '12345', undef, { timeout => $timeout_later } ) } 'query was slow: global timeout would fail - single call override';
-    is( $response->f('request_method'), "GET", "query was slow: timeout override: requested method is good" );
-    is( $response->f('request_uri'), "$URL_BASE/slowResponses/12345", "query was slow: timeout override: requested URI is good" );
-    is( $response->f('request_content'), '', "query was slow: timeout override: requested content is empty" );
+    lives_ok {
+        $response
+            = $client->query_by_id( 'slowResponse', '12345', undef, { timeout => $timeout_later } )
+    }
+    'query was slow: global timeout would fail - single call override';
+    is( $response->f('request_method'),
+        "GET", "query was slow: timeout override: requested method is good" );
+    is( $response->f('request_uri'),
+        "$URL_BASE/slowResponses/12345",
+        "query was slow: timeout override: requested URI is good"
+    );
+    is( $response->f('request_content'),
+        '', "query was slow: timeout override: requested content is empty" );
 
     $client->timeout($timeout_sooner);
-    throws_ok { $client->query_by_id( 'slowResponse', '12345', { badJson => 1} ) } qr/timed out while calling 'GET' 'http:\/\/example.com\/v1\/slowResponses\/12345\?badJson=1'/, 'query was slow: and over timeout - die 2';
+    throws_ok { $client->query_by_id( 'slowResponse', '12345', { badJson => 1 } ) }
+    qr/timed out while calling 'GET' 'http:\/\/example.com\/v1\/slowResponses\/12345\?badJson=1'/,
+        'query was slow: and over timeout - die 2';
 
     $client->timeout($timeout_later);
-    lives_ok { $response = $client->query_by_id( 'slowResponse', '12345', {timeout => 1}, { timeout => $timeout_later } ) } 'timeout param + override: lives';
-    is( $response->f('request_method'), "GET", "timeout param + override: requested method is good" );
-    is( $response->f('request_uri'), "$URL_BASE/slowResponses/12345?timeout=1", "timeout param + override: requested URI is good" );
-    is( $response->f('request_content'), '', "timeout param + override: requested content is empty" );
+    lives_ok {
+        $response = $client->query_by_id(
+            'slowResponse', '12345',
+            { timeout => 1 },
+            { timeout => $timeout_later }
+            )
+    }
+    'timeout param + override: lives';
+    is( $response->f('request_method'),
+        "GET", "timeout param + override: requested method is good" );
+    is( $response->f('request_uri'),
+        "$URL_BASE/slowResponses/12345?timeout=1",
+        "timeout param + override: requested URI is good"
+    );
+    is( $response->f('request_content'),
+        '', "timeout param + override: requested content is empty" );
 
     $client->timeout($timeout_later);
-    throws_ok { $client->query_by_id( 'slowResponse', '12345', undef, { timeout => $timeout_sooner } ) } qr/timed out while calling 'GET' 'http:\/\/example.com\/v1\/slowResponses\/12345'/, 'query was slow: global timeout would pass - single call override fail';
+    throws_ok {
+        $client->query_by_id( 'slowResponse', '12345', undef, { timeout => $timeout_sooner } )
+    }
+    qr/timed out while calling 'GET' 'http:\/\/example.com\/v1\/slowResponses\/12345'/,
+        'query was slow: global timeout would pass - single call override fail';
 
     $client->timeout($timeout_later);
-    throws_ok { $client->query_by_id( 'slowResponse', '12345', { 'die' => '1' } ) } qr/internal die - not alarm/, 'lwp die is preserved';
+    throws_ok { $client->query_by_id( 'slowResponse', '12345', { 'die' => '1' } ) }
+    qr/internal die - not alarm/, 'lwp die is preserved';
 
 };
 
@@ -171,7 +211,10 @@ subtest 'query' => sub {
     ($item) = @items;
     is( $item->type,                'echoResponse', 'correct item type returned' );
     is( $item->f('request_method'), "GET",          "complex: requested method is good" );
-    is( $item->f('request_uri'), "$URL_BASE/echoResponses?name=bar", "complex: requested URI is good" );
+    is( $item->f('request_uri'),
+        "$URL_BASE/echoResponses?name=bar",
+        "complex: requested URI is good"
+    );
     is( $item->f('request_content'), '', "complex: requested content is empty" );
 
     $item = $client->query( 'echoResponse', '1234' );
@@ -181,7 +224,10 @@ subtest 'query' => sub {
 
     $item = $client->query( 'echoResponse', '1234', { showAccounts => 'true' } );
     is( $item->f('request_method'), "GET", "id + extra: requested method is good" );
-    is( $item->f('request_uri'), "$URL_BASE/echoResponses/1234?showAccounts=true", "id + extra: requested URI is good" );
+    is( $item->f('request_uri'),
+        "$URL_BASE/echoResponses/1234?showAccounts=true",
+        "id + extra: requested URI is good"
+    );
     is( $item->f('request_content'), '', "id + extra: requested content is empty" );
 
     my $id = '123';
@@ -196,26 +242,40 @@ subtest 'query' => sub {
     ($item) = @items;
     is( $item->type,                'echoResponse', 'complex 2: correct item type returned' );
     is( $item->f('request_method'), "GET",          "complex 2: requested method is good" );
-    is( $item->f('request_uri'), sprintf( '%s/echoResponses?id=123&showAccounts=true', $URL_BASE, $id ), "complex 2: requested URI is good" );
+    is( $item->f('request_uri'),
+        sprintf( '%s/echoResponses?id=123&showAccounts=true', $URL_BASE, $id ),
+        "complex 2: requested URI is good"
+    );
     is( $item->f('request_content'), '', "complex 2: requested content is empty" );
 
-    my $timeout_sooner = $SLOW_SPEED-2;
-    my $timeout_later  = $SLOW_SPEED+2;
+    my $timeout_sooner = $SLOW_SPEED - 2;
+    my $timeout_later  = $SLOW_SPEED + 2;
 
     $client->timeout($timeout_later);
     $item = $client->query( 'slowResponse', '1234', { timeout => '1' } );
     is( $item->f('request_method'), "GET", "timeout param: id + extra: requested method is good" );
-    is( $item->f('request_uri'), "$URL_BASE/slowResponses/1234?timeout=1", "timeout param: id + extra: ensure timeout is not seen as http option" );
+    is( $item->f('request_uri'),
+        "$URL_BASE/slowResponses/1234?timeout=1",
+        "timeout param: id + extra: ensure timeout is not seen as http option"
+    );
     is( $item->f('request_content'), '', "timeout param: id + extra: requested content is empty" );
 
     $client->timeout($timeout_sooner);
-    $item = $client->query( 'slowResponse', '1234', { timeout => '1' }, { timeout => $timeout_later } );
-    is( $item->f('request_method'), "GET", "timeout param + timeout override: id + extra: requested method is good" );
-    is( $item->f('request_uri'), "$URL_BASE/slowResponses/1234?timeout=1", "timeout param + timeout override: id + extra: ensure timeout is not seen as http option" );
-    is( $item->f('request_content'), '', "timeout param + timeout override: id + extra: requested content is empty" );
+    $item = $client->query( 'slowResponse', '1234', { timeout => '1' },
+        { timeout => $timeout_later } );
+    is( $item->f('request_method'),
+        "GET", "timeout param + timeout override: id + extra: requested method is good" );
+    is( $item->f('request_uri'),
+        "$URL_BASE/slowResponses/1234?timeout=1",
+        "timeout param + timeout override: id + extra: ensure timeout is not seen as http option"
+    );
+    is( $item->f('request_content'),
+        '', "timeout param + timeout override: id + extra: requested content is empty" );
 
     $client->timeout($timeout_sooner);
-    throws_ok { $client->query( 'slowResponse', '1234' ) } qr/timed out while calling 'GET' 'http:\/\/example.com\/v1\/slowResponses\/1234'/, 'query was slow: and over timeout - die';
+    throws_ok { $client->query( 'slowResponse', '1234' ) }
+    qr/timed out while calling 'GET' 'http:\/\/example.com\/v1\/slowResponses\/1234'/,
+        'query was slow: and over timeout - die';
 
 };
 
@@ -249,11 +309,14 @@ subtest 'save' => sub {
     );
     is( $submitted->{new_field}, 'new_value', 'test submit field was submitted and matched' );
 
-    my $timeout_sooner = $SLOW_SPEED-2;
-    my $timeout_later  = $SLOW_SPEED+2;
+    my $timeout_sooner = $SLOW_SPEED - 2;
+    my $timeout_later  = $SLOW_SPEED + 2;
 
-    $response = $client->query_by_id( 'slowResponse', '1234', undef, { timeout => $timeout_later } );
-    throws_ok { $response->save( { timeout => $timeout_sooner } ) } qr/timed out while calling 'PUT' 'http:\/\/example.com\/v1\/slowResponses\/1234'/, 'test submit - timeout override';
+    $response
+        = $client->query_by_id( 'slowResponse', '1234', undef, { timeout => $timeout_later } );
+    throws_ok { $response->save( { timeout => $timeout_sooner } ) }
+    qr/timed out while calling 'PUT' 'http:\/\/example.com\/v1\/slowResponses\/1234'/,
+        'test submit - timeout override';
 };
 
 subtest 'delete' => sub {
@@ -265,14 +328,18 @@ subtest 'delete' => sub {
     ok( $result->http_response->is_success, 'DELETE was ok' );
     is( $result->http_response->code, 204, 'DELETE came back with expected response code' );
 
-    my $timeout_sooner = $SLOW_SPEED-2;
-    my $timeout_later  = $SLOW_SPEED+2;
+    my $timeout_sooner = $SLOW_SPEED - 2;
+    my $timeout_later  = $SLOW_SPEED + 2;
 
-    $response = $client->query_by_id( 'slowResponse', '1234', undef, { timeout => $timeout_later } );
+    $response
+        = $client->query_by_id( 'slowResponse', '1234', undef, { timeout => $timeout_later } );
     is_deeply( $result->fields, {}, 'timeout param: fields are empty' );
     ok( $result->http_response->is_success, 'timeout param: DELETE was ok' );
-    is( $result->http_response->code, 204, 'timeout param: DELETE came back with expected response code' );
-    throws_ok { $response->delete( { timeout => $timeout_sooner } ) } qr/timed out while calling 'DELETE' 'http:\/\/example.com\/v1\/slowResponses\/1234'/, 'test submit - timeout override';
+    is( $result->http_response->code,
+        204, 'timeout param: DELETE came back with expected response code' );
+    throws_ok { $response->delete( { timeout => $timeout_sooner } ) }
+    qr/timed out while calling 'DELETE' 'http:\/\/example.com\/v1\/slowResponses\/1234'/,
+        'test submit - timeout override';
 };
 
 subtest 'follow_link' => sub {
@@ -318,7 +385,7 @@ subtest 'do_action' => sub {
     is( $done3->f('request_content_struct'), '3',   'perl data struct is correct' );
 
     my $child = $response->f_as_resources('child_resource');
-    is( $child->id, 'child', 'child resource id matches' );
+    is( $child->id,   'child',             'child resource id matches' );
     is( $child->type, 'echoResponseChild', 'child resource type matches' );
     my $done4 = $child->do_action( 'exampleAction', {} );
     is( $done4->f('request_method'), 'POST', 'action http method is POST' );
@@ -327,7 +394,7 @@ subtest 'do_action' => sub {
         'action url is correct'
     );
 
-    dies_ok { $response->do_action( 'noExiste' ) } 'no action in fields or schema';
+    dies_ok { $response->do_action('noExiste') } 'no action in fields or schema';
 
 };
 
