@@ -196,6 +196,8 @@ sub http_request {
     my $response = eval {
         local $SIG{ALRM} = sub { die("alarm\n") };
         alarm $http_opts->{timeout};
+        # return from the eval into the response var - alarm cleared right
+        # right afterward unconditionally
         return $self->user_agent->request($request);
     };
     alarm 0;
@@ -478,7 +480,7 @@ the HTTP response code in the resultant resource on your own.
 
 Search for a list of resources given a schema name and a filter.
 
-If the second parameter is a scalar, is assumes you are not searching but rather
+If the second parameter is a scalar, it is assumed you are not searching but rather
 trying to load a specific resource.
 
 See the documentation for C<query_by_id>.
