@@ -2,35 +2,36 @@
 use ExtUtils::MakeMaker;
 WriteMakefile
 (
-  'PREREQ_PM' => {
-                   'Pod::Usage' => 0,
-                   'List::MoreUtils' => 0,
-                   'JSON' => 0,
-                   'LWP::UserAgent' => 0,
-                   'File::Slurp' => 0,
-                   'FindBin' => 0,
-                   'Carp' => 0,
-                   'Config::Any' => 0,
-                   'URI::QueryParam' => 0,
-                   'HTTP::Request' => 0,
-                   'Text::FormatTable' => 0,
-                   'Moose' => 0,
-                   'Test::MockObject' => 0,
-                   'URI' => 0,
-                   'Test::MockObject::Extends' => 0,
-                   'Term::Shell' => 0,
-                   'List::Util' => 0,
-                   'Test::Exception' => 0,
-                   'Getopt::Long' => 0,
-                   'Text::Wrap' => 0,
-                   'Test::More' => 0
-                 },
   'VERSION_FROM' => 'lib/WWW/GoDaddy/REST.pm',
   'INSTALLDIRS' => 'site',
-  'NAME' => 'WWW::GoDaddy::REST',
   'PL_FILES' => {},
+  'NAME' => 'WWW::GoDaddy::REST',
   'EXE_FILES' => [
                    'script/gdapi-shell'
-                 ]
+                 ],
+  'PREREQ_PM' => {
+                   'Test::Exception' => 0,
+                   'Test::MockObject::Extends' => 0,
+                   'File::Slurp' => 0,
+                   'Text::FormatTable' => 0,
+                   'List::Util' => 0,
+                   'Carp' => 0,
+                   'Getopt::Long' => 0,
+                   'Config::Any' => 0,
+                   'Test::More' => 0,
+                   'Scalar::Util' => 0,
+                   'JSON' => 0,
+                   'FindBin' => 0,
+                   'Pod::Usage' => 0,
+                   'Term::Shell' => 0,
+                   'URI' => 0,
+                   'List::MoreUtils' => 0,
+                   'Test::MockObject' => 0,
+                   'URI::QueryParam' => 0,
+                   'HTTP::Request' => 0,
+                   'Text::Wrap' => 0,
+                   'Moose' => 0,
+                   'LWP::UserAgent' => 0
+                 }
 )
 ;

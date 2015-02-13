@@ -146,6 +146,8 @@ subtest 'query_by_id' => sub {
     );
     is( $response->f('request_content'),
         '', "query was slow: timeout global: requested content is empty" );
+    diag("sleeping to ensure the alarm was cleared");
+    sleep($timeout_later);
 
     $client->timeout($timeout_sooner);
     lives_ok {
@@ -195,6 +197,14 @@ subtest 'query_by_id' => sub {
     $client->timeout($timeout_later);
     throws_ok { $client->query_by_id( 'slowResponse', '12345', { 'die' => '1' } ) }
     qr/internal die - not alarm/, 'lwp die is preserved';
+
+    eval { sleep($timeout_later); };
+    if ($@) {
+        fail('alarm should be cleared');
+    }
+    else {
+        ok('alarm should be cleared');
+    }
 
 };
 
@@ -259,6 +269,21 @@ subtest 'query' => sub {
         "timeout param: id + extra: ensure timeout is not seen as http option"
     );
     is( $item->f('request_content'), '', "timeout param: id + extra: requested content is empty" );
+
+    $client->timeout($timeout_sooner);
+    $item = $client->query( 'slowResponse', '1234', { timeout => '1' }, { timeout => '0' } );
+    is( $item->f('request_method'), "GET", "do not set alarm: requested method is good" );
+    is( $item->f('request_uri'),
+        "$URL_BASE/slowResponses/1234?timeout=1",
+        "do not set alarm: ensure timeout is not seen as http option"
+    );
+    is( $item->f('request_content'), '', "do not set alarm: requested content is empty" );
+
+    throws_ok { $client->query( 'slowResponse', '1234', undef, { timeout => 'dasd' } ) }
+    qr/timeout 'dasd' is not a number/, 'timeout is not a number';
+
+    throws_ok { $client->query( 'slowResponse', '1234', undef, { timeout => '' } ) }
+    qr/timeout '' is not a number/, 'timeout is not a number';
 
     $client->timeout($timeout_sooner);
     $item = $client->query( 'slowResponse', '1234', { timeout => '1' },

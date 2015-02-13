@@ -13,6 +13,7 @@ use LWP::UserAgent;
 use HTTP::Request;
 use Moose;
 use Moose::Util::TypeConstraints;
+use Scalar::Util qw( looks_like_number );
 use WWW::GoDaddy::REST::Resource;
 use WWW::GoDaddy::REST::Schema;
 use WWW::GoDaddy::REST::Util qw(abs_url json_encode json_decode is_json );
@@ -176,7 +177,13 @@ sub http_request {
     my ( $method, $uri, $perl_data, $http_opts ) = @_;
 
     $http_opts ||= {};
-    $http_opts->{timeout} ||= $self->timeout;
+    if ( !defined $http_opts->{timeout} ) {
+        $http_opts->{timeout} = $self->timeout;
+    }
+
+    if ( !looks_like_number( $http_opts->{timeout} ) ) {
+        die( "timeout '" . $http_opts->{timeout} . "' is not a number" );
+    }
 
     $uri = abs_url( $self->url, $uri );
 
@@ -193,20 +200,27 @@ sub http_request {
 
     my $request = $self->build_http_request( $method, $uri, $headers, $content );
 
-    my $response = eval {
-        local $SIG{ALRM} = sub { die("alarm\n") };
-        alarm $http_opts->{timeout};
-        # return from the eval into the response var - alarm cleared right
-        # right afterward unconditionally
-        return $self->user_agent->request($request);
-    };
-    alarm 0;
-    if ( my $e = $@ ) {
-        if ( $e eq "alarm\n" ) {
-            confess("timed out while calling '$method' '$uri'");
-        }
-        else {
-            confess($e);
+    my $response;
+
+    # timeout of 0 or less means we are not going to time out ever
+    if ( $http_opts->{timeout} <= 0 ) {
+        $response = $self->user_agent->request($request);
+    }
+    else {
+        eval {
+            local $SIG{ALRM} = sub { die("alarm\n") };
+            alarm int($http_opts->{timeout});
+            $response = $self->user_agent->request($request);
+            alarm 0;
+        };
+        if ( my $e = $@ ) {
+            if ( $e eq "alarm\n" ) {
+                confess("timed out while calling '$method' '$uri'");
+            }
+            else {
+                alarm 0;
+                confess($e);
+            }
         }
     }
     my $response_text = $response->content;

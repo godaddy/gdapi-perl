@@ -6,8 +6,9 @@ SYNOPSIS
 
      my $client = WWW::GoDaddy::REST->new({
        url => 'https://example.com/v1',
-       basic_username => 'theuser',
-       basic_password => 'notsosecret'
+       basic_username => 'theuser',     # optional
+       basic_password => 'notsosecret', # optional
+       timeout => 15,                   # optional - default 10 seconds
      });
 
      # see docs for WWW::GoDaddy::REST::Resource for more info
@@ -190,7 +191,7 @@ METHODS
     query
         Search for a list of resources given a schema name and a filter.
 
-        If the second parameter is a scalar, is assumes you are not
+        If the second parameter is a scalar, it is assumed you are not
         searching but rather trying to load a specific resource.
 
         See the documentation for `query_by_id'.
